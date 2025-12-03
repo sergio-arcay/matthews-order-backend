@@ -1,0 +1,29 @@
+[project]
+name = "matthewsback-order"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Sergio",email = "sergio@deicom-technologies.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.111.0",
+    "uvicorn>=0.30.0",
+    "pydantic-settings>=2.4.0",
+]
+
+[tool.poetry]
+packages = [{include = "matthewsback_order", from = "src"}]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+httpx = "^0.27.0"
+pytest-asyncio = "^0.23.6"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+deploy = "src.matthewsback_order.app:main"

@@ -1,0 +1,14 @@
+{
+  "test-slow-echo": {
+    "passkey": "testkey",
+    "timeout": 10,
+    "function": "testing.slow_echo",
+    "parameters": { }
+  },
+  "test-docker-touch": {
+    "passkey": "testkey",
+    "timeout": 10,
+    "function": "testing.docker_touch",
+    "parameters": { }
+  }
+}
