@@ -13,9 +13,6 @@ WORKDIR /app
 # Copia los archivos de dependencias y el código fuente
 COPY pyproject.toml poetry.lock ./
 COPY src/ ./src/
-
-# Copia archivos de configuración si existen
-COPY api_config.json ./
 COPY README.md ./
 
 # Instala las dependencias
