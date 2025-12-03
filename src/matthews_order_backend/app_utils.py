@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Any, Callable
 from functools import lru_cache, partial
 
-from src.matthewsback_order.models import FunctionRegistry
-from src.matthewsback_order.settings import Settings
+from src.matthews_order_backend.models import FunctionRegistry
+from src.matthews_order_backend.settings import Settings
 
 
 @lru_cache(maxsize=1)

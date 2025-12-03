@@ -8,8 +8,8 @@ from typing import Any, Dict
 import pytest
 from fastapi.testclient import TestClient
 
-from src.matthewsback_order.app import app
-from src.matthewsback_order.app_utils import reset_runtime_state
+from src.matthews_order_backend.app import app
+from src.matthews_order_backend.app_utils import reset_runtime_state
 
 
 @contextmanager

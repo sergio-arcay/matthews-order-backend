@@ -7,8 +7,8 @@ import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, status
 
-from src.matthewsback_order.models import OrderRequest, OrderResponse, FunctionRegistry, ConfigRepository
-from src.matthewsback_order.app_utils import execute_callable, get_settings
+from src.matthews_order_backend.models import OrderRequest, OrderResponse, FunctionRegistry, ConfigRepository
+from src.matthews_order_backend.app_utils import execute_callable, get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ async def healthz() -> dict[str, str]:
 
 def main():
     import uvicorn
-    uvicorn.run("src.matthewsback_order.app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("src.matthews_order_backend.app:app", host="0.0.0.0", port=8000, reload=True)
 
 
 if __name__ == "__main__":

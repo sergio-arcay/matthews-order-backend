@@ -11,7 +11,7 @@ from pathlib import Path
 # region Constants
 
 DEFAULT_FUNCTION_NAME = "run"
-FUNCTIONS_PACKAGE = "matthewsback_order.functions"
+FUNCTIONS_PACKAGE = "matthews_order_backend.functions"
 
 # endregion
 
