@@ -1,6 +1,6 @@
 import inspect
 import asyncio
-import dotenv
+import os
 from pathlib import Path
 from typing import Any, Callable
 from functools import lru_cache, partial
@@ -11,11 +11,14 @@ from src.matthews_order_backend.settings import Settings
 
 @lru_cache(maxsize=1)
 def _get_settings() -> Settings:
-    # Get Path object from environment
-    api_config_path = Path(dotenv.get_key(dotenv.find_dotenv(), "API_CONFIG_PATH") or "") or None
-    default_timeout = float(dotenv.get_key(dotenv.find_dotenv(), "DEFAULT_TIMEOUT") or 15.0) or 15.0
-    log_level = dotenv.get_key(dotenv.find_dotenv(), "LOG_LEVEL") or "INFO"
-    return Settings(api_config_path=api_config_path, default_timeout=default_timeout, log_level=log_level)
+    api_config_path = Path(os.getenv("API_CONFIG_PATH", "")) or None
+    default_timeout = float(os.getenv("DEFAULT_TIMEOUT", None))
+    log_level = os.getenv("LOG_LEVEL", None)
+    return Settings(
+        api_config_path=api_config_path,
+        default_timeout=default_timeout,
+        log_level=log_level
+    )
 
 
 def get_settings() -> Settings:

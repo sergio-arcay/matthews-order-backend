@@ -16,7 +16,6 @@ COPY src/ ./src/
 
 # Copia archivos de configuración si existen
 COPY api_config.json ./
-COPY .env ./
 COPY README.md ./
 
 # Instala las dependencias
