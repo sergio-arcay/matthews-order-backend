@@ -1,0 +1,19 @@
+services:
+  backend:
+    build:
+      # context: .
+      context: git@github.com:sergio-arcay/matthews_order_backend.git#main
+      dockerfile: Dockerfile
+      ssh:
+        - default
+    environment:
+      - API_CONFIG_PATH=api_config.json
+      - DEFAULT_TIMEOUT=10
+      - LOG_LEVEL=DEBUG
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api_config.json:/app/api_config.json
+    restart: unless-stopped
+    env_file:
+      - .env
