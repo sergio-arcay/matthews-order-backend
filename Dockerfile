@@ -1,7 +1,21 @@
 FROM python:3.13.9-slim
 
 # Instala dependencias del sistema
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    curl \
+    apt-transport-https \
+    ca-certificates \
+    gnupg \
+    lsb-release && \
+    rm -rf /var/lib/apt/lists/*
+
+# Instala Docker CLI
+RUN mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && \
+    apt-get install -y docker-ce-cli && \
+    rm -rf /var/lib/apt/lists/*
 
 # Instala Poetry
 RUN curl -sSL https://install.python-poetry.org | python3 - && \
