@@ -5,8 +5,24 @@ from pathlib import Path
 from typing import Any, Callable
 from functools import lru_cache, partial
 
-from src.matthews_order_backend.models import FunctionRegistry
+from src.matthews_order_backend.models import FunctionRegistry, ConfigRepository
 from src.matthews_order_backend.settings import Settings
+
+
+_config_repo: ConfigRepository | None = None
+
+
+@lru_cache(maxsize=1)
+def _get_config_repo() -> ConfigRepository:
+    global _config_repo
+    settings = get_settings()
+    if _config_repo is None or _config_repo.source_path != settings.api_config_path:
+        _config_repo = ConfigRepository(settings.api_config_path)
+    return _config_repo
+
+
+def get_config_repo() -> ConfigRepository:
+    return _get_config_repo()
 
 
 @lru_cache(maxsize=1)

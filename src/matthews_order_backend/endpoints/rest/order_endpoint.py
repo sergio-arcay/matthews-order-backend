@@ -1,22 +1,15 @@
-from fastapi import APIRouter, HTTPException, status
-from src.matthews_order_backend.models import OrderRequest, OrderResponse, FunctionRegistry, ConfigRepository
-from src.matthews_order_backend.app_utils import execute_callable, get_settings
 import asyncio
 import time
 import logging
 
+from fastapi import APIRouter, HTTPException, status
+from src.matthews_order_backend.models import OrderRequest, OrderResponse, FunctionRegistry
+from src.matthews_order_backend.app_utils import execute_callable, get_settings, get_config_repo
+
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-_config_repo: ConfigRepository | None = None
-
-def _get_config_repo() -> ConfigRepository:
-    global _config_repo
-    settings = get_settings()
-    if _config_repo is None or _config_repo.source_path != settings.api_config_path:
-        _config_repo = ConfigRepository(settings.api_config_path)
-    return _config_repo
 
 @router.post(
     "",
@@ -32,7 +25,7 @@ def _get_config_repo() -> ConfigRepository:
 async def execute_order(request: OrderRequest) -> OrderResponse:
     try:
         # Get action configurations from the repository
-        actions = _get_config_repo().get_actions()
+        actions = get_config_repo().get_actions()
     except (FileNotFoundError, ValueError) as exc:
         logger.exception("Configuration error while loading api_config.json.")
         raise HTTPException(
