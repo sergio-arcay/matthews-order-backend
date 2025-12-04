@@ -1,11 +1,12 @@
 services:
-  backend:
+  matthews_order_backend:
     build:
       # context: .
       context: git@github.com:sergio-arcay/matthews_order_backend.git#main
       dockerfile: Dockerfile
       ssh:
         - default
+    container_name: matthews_order_backend
     environment:
       - API_CONFIG_PATH=api_config.json
       - DEFAULT_TIMEOUT=10
@@ -18,3 +19,12 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+
+# To build and run the container with remote context (git repo), use the following command:
+# docker-compose up --build
+# Make sure your SSH agent is running and has the necessary keys added.
+# For example, on Unix-based systems, you can start the SSH agent and add your key with:
+# eval "$(ssh-agent -s)"
+# ssh-add ~/.ssh/id_rsa
+# Then run the docker-compose command above.
+# This setup allows the Docker build process to access private repositories using your SSH keys.
