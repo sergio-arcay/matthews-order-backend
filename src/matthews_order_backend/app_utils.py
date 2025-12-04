@@ -14,10 +14,12 @@ def _get_settings() -> Settings:
     api_config_path = Path(os.getenv("API_CONFIG_PATH", "")) or None
     default_timeout = float(os.getenv("DEFAULT_TIMEOUT", None))
     log_level = os.getenv("LOG_LEVEL", None)
+    discord_bot_token = os.getenv("DISCORD_BOT_TOKEN", None)
     return Settings(
         api_config_path=api_config_path,
         default_timeout=default_timeout,
-        log_level=log_level
+        log_level=log_level,
+        discord_bot_token=discord_bot_token
     )
 
 

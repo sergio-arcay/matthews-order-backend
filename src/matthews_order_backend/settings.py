@@ -18,3 +18,7 @@ class Settings(BaseSettings):
         description="Fallback timeout (in seconds) when an action omits it.",
     )
     log_level: str = Field(default="INFO", description="Python logging level.")
+    discord_bot_token: str = Field(
+        default="",
+        description="Discord bot token used for connecting to the Discord API.",
+    )

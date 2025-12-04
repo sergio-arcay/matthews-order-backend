@@ -4,10 +4,13 @@ import logging
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+import discord
 
 from src.matthews_order_backend.models import ConfigRepository
 from src.matthews_order_backend.app_utils import get_settings
-from src.matthews_order_backend.endpoints.v1.order_endpoint import router as order_router
+from src.matthews_order_backend.endpoints.rest.order_endpoint import router as order_router
+
+from src.matthews_order_backend.endpoints.discord.order_event import OrderDiscordClient
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +34,17 @@ async def lifespan(app: FastAPI):
     yield
 
 
+# Init FastAPI app
 app = FastAPI(
     title="Matthews-Back Order API",
     description="Generic action execution API driven by api_config.json definitions.",
     version="0.1.0",
     lifespan=lifespan,
 )
+# Init Discord client
+intents = discord.Intents.default()
+intents.message_content = True
+app_discord = OrderDiscordClient(intents=intents)
 
 
 # Health endpoint
@@ -46,8 +54,10 @@ async def healthz() -> dict[str, str]:
     return {"status": "ok"}
 
 
-# Include routers
+# Include routers for FastAPI app
 app.include_router(order_router, prefix="/order")
+# Include events for Discord client
+app_discord.run(get_settings().discord_bot_token)
 
 
 def main():
