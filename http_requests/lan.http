@@ -1,0 +1,51 @@
+### test-docker-touch
+
+POST {{uri-lan}}/order
+Content-Type: application/json
+
+{
+  "action": "test-docker-touch",
+  "passkey": "{{passkey-test}}",
+  "payload": { }
+}
+
+### test-slow-echo
+
+POST {{uri-lan}}/order
+Content-Type: application/json
+
+{
+  "action": "test-slow-echo",
+  "passkey": "{{passkey-test}}",
+  "payload": {
+    "delay": 8
+  }
+}
+
+### add-ip
+
+POST {{uri-lan}}/order
+Content-Type: application/json
+
+{
+  "action": "add-ip",
+  "passkey": "{{passkey-mine}}",
+  "payload": {
+    "ip": "000.000.000.000"
+  }
+}
+
+### remove-ip
+
+POST {{uri-lan}}/order
+Content-Type: application/json
+
+{
+  "action": "remove-ip",
+  "passkey": "{{passkey-mine}}",
+  "payload": {
+    "ip": "000.000.000.000"
+  }
+}
+
+###
