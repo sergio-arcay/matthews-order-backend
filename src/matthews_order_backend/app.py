@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-import logging
-
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import discord
 
 from src.matthews_order_backend.models import ConfigRepository
-from src.matthews_order_backend.app_utils import get_settings
+from src.matthews_order_backend.app_utils import get_settings, get_logger
 from src.matthews_order_backend.endpoints.rest.order_endpoint import router as order_router
 
 from src.matthews_order_backend.endpoints.discord.order_event import OrderDiscordClient
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 _config_repo: ConfigRepository | None = None

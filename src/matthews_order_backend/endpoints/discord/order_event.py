@@ -1,16 +1,15 @@
 from google import genai
 from google.genai import types
 import discord
-import logging
 import asyncio
 import time
 import json
 
 from src.matthews_order_backend.models import OrderResponse, FunctionRegistry
-from src.matthews_order_backend.app_utils import execute_callable, get_settings, get_config_repo, get_total_config_file
+from src.matthews_order_backend.app_utils import execute_callable, get_settings, get_config_repo, get_total_config_file, get_logger
 
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 AI_INPUT_PROMPT = """
 Ey Matthew! Que tal?! Ahora vas a tener que asignar una acción a cada mensaje de usuario. Solo puedes usar las acciones

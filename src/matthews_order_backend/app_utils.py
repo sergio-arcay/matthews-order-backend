@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 from functools import lru_cache, partial
+import logging
 
 from src.matthews_order_backend.models import FunctionRegistry, ConfigRepository
 from src.matthews_order_backend.settings import Settings
@@ -85,3 +86,19 @@ def reset_runtime_state() -> None:
     _get_settings.cache_clear()
     _config_repo = None
     FunctionRegistry.clear()
+
+
+def get_logger() -> logging.Logger:
+    """Devuelve el logger global del proyecto, configurado una sola vez."""
+    logger = logging.getLogger("matthews_order_backend")
+    if not logger.hasHandlers():
+        log_level = os.getenv("LOG_LEVEL", "INFO")
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(log_level)
+        logger.propagate = False
+    return logger
