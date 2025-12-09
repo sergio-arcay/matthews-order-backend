@@ -25,6 +25,14 @@ def get_config_repo() -> ConfigRepository:
     return _get_config_repo()
 
 
+def get_total_config_file() -> str:
+    """Helper to read the entire config file as a string."""
+    config_repo = get_config_repo()
+    if not config_repo.source_path or not config_repo.source_path.exists():
+        raise FileNotFoundError("Configuration file not found.")
+    return config_repo.source_path.read_text(encoding="utf-8")
+
+
 @lru_cache(maxsize=1)
 def _get_settings() -> Settings:
     api_config_path = Path(os.getenv("API_CONFIG_PATH", "")) or None

@@ -13,7 +13,5 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
     if delay > 0:
         await asyncio.sleep(delay)
     return {
-        "environment": environment,
-        "payload": payload,
-        "message": f"Echoed after {delay} seconds delay.",
+        "message": f"El echo ha vuelto después de {delay} segundos."
     }

@@ -54,8 +54,5 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
     result = await _exec_command_in_container(container, command)
 
     return {
-        "action": "add-ip",
-        "container": container,
-        "ip": ip_address,
-        "result": result,
+        "message": f"Se completó la adición de la IP '{ip_address}' de la whitelist con el siguiente resultado: {result}",
     }

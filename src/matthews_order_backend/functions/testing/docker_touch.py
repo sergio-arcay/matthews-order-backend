@@ -40,8 +40,5 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
         raise RuntimeError(f"Error creando archivo en el contenedor: {stderr.decode().strip()}")
 
     return {
-        "action": "docker_touch",
-        "container": container,
-        "path": temp_path,
-        "stdout": stdout.decode().strip(),
+        "message": f"Archivo '{temp_path}' creado exitosamente en el contenedor '{container}'.",
     }
