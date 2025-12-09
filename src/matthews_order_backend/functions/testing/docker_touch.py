@@ -16,8 +16,8 @@ async def _check_container_running(container: str) -> bool:
     return stdout.decode().strip() == "true"
 
 
-async def run(*, parameters: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
-    container = parameters.get("target_container")
+async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
+    container = environment.get("target_container")
     if not container:
         raise ValueError("Missing 'target_container' parameter.")
 

@@ -31,19 +31,19 @@ async def _exec_command_in_container(container: str, command: str) -> str:
     return stdout.decode().strip()
 
 
-async def run(*, parameters: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
+async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Add an IP address to the Minecraft server whitelist.
 
     Connect to the specified target container and add the given IP address using exec commands.
     """
-    container = parameters.get("target_container")
+    container = environment.get("target_container")
     if not container:
         raise ValueError("Missing 'target_container' parameter in configuration.")
 
-    ip_address = payload.get("ip")
+    ip_address = payload.get("ip_address")
     if not ip_address:
-        raise ValueError("payload.ip is required to whitelist a player.")
+        raise ValueError("payload.ip_address is required to whitelist a player.")
 
     # Check if the docker container exists into this host and is running
     if not await _check_container_running(container):

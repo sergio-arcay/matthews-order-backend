@@ -4,7 +4,7 @@ import asyncio
 from typing import Any, Dict
 
 
-async def run(*, parameters: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
+async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Utility function leveraged in tests to validate timeout handling.
     Sleeps for `payload.get("delay", 0)` seconds before echoing the payload.
@@ -13,7 +13,7 @@ async def run(*, parameters: Dict[str, Any], payload: Dict[str, Any]) -> Dict[st
     if delay > 0:
         await asyncio.sleep(delay)
     return {
-        "parameters": parameters,
+        "environment": environment,
         "payload": payload,
         "message": f"Echoed after {delay} seconds delay.",
     }

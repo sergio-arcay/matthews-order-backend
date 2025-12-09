@@ -47,8 +47,8 @@ def _build_function_kwargs(func: Callable[..., Any], payload: dict[str, Any]) ->
     """Map the allowed keyword arguments for the target function."""
     sig = inspect.signature(func)
     kwargs: dict[str, Any] = {}
-    if "parameters" in sig.parameters:
-        kwargs["parameters"] = payload["parameters"]
+    if "environment" in sig.parameters:
+        kwargs["environment"] = payload["environment"]
     if "payload" in sig.parameters:
         kwargs["payload"] = payload["payload"]
     if not kwargs:
@@ -58,10 +58,10 @@ def _build_function_kwargs(func: Callable[..., Any], payload: dict[str, Any]) ->
 
 
 async def execute_callable(
-    func: Callable[..., Any], *, parameters: dict[str, Any], payload: dict[str, Any]
+    func: Callable[..., Any], *, environment: dict[str, Any], payload: dict[str, Any]
 ) -> Any:
     """Executes the resolved callable honoring sync + async implementations."""
-    invocation_payload = {"parameters": parameters, "payload": payload}
+    invocation_payload = {"environment": environment, "payload": payload}
     kwargs = _build_function_kwargs(func, invocation_payload)
 
     if inspect.iscoroutinefunction(func):

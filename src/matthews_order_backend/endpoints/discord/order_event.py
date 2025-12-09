@@ -1,7 +1,7 @@
 import discord
+import logging
 import asyncio
 import time
-import logging
 
 from src.matthews_order_backend.models import OrderResponse, FunctionRegistry
 from src.matthews_order_backend.app_utils import execute_callable, get_settings, get_config_repo
@@ -54,7 +54,7 @@ class OrderDiscordClient(discord.Client):
 
         try:
             result = await asyncio.wait_for(
-                execute_callable(handler, parameters=action_config.parameters, payload=payload),
+                execute_callable(handler, environment=action_config.environment, payload=payload),
                 timeout=timeout,
             )
         except asyncio.TimeoutError:

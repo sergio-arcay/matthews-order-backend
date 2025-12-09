@@ -30,7 +30,7 @@ def test_execute_order_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
             "passkey": "",
             "timeout": 5,
             "function": "minecraft.server.whitelist.add_ip",
-            "parameters": {"target_container": "mc-server"},
+            "environment": {"target_container": "mc-server"},
         }
     }
 
@@ -50,7 +50,7 @@ def test_execute_order_requires_passkey(tmp_path: Path, monkeypatch: pytest.Monk
             "passkey": "letmein",
             "timeout": 5,
             "function": "minecraft.server.whitelist.add_ip",
-            "parameters": {"target_container": "mc-server"},
+            "environment": {"target_container": "mc-server"},
         }
     }
 
@@ -73,7 +73,7 @@ def test_execute_order_unknown_action(tmp_path: Path, monkeypatch: pytest.Monkey
             "passkey": "",
             "timeout": 5,
             "function": "minecraft.server.whitelist.add_ip",
-            "parameters": {"target_container": "mc-server"},
+            "environment": {"target_container": "mc-server"},
         }
     }
 
@@ -89,7 +89,7 @@ def test_execute_order_timeout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
             "passkey": "",
             "timeout": 0.1,
             "function": "testing.slow_echo",
-            "parameters": {},
+            "environment": {},
         }
     }
 
@@ -107,7 +107,7 @@ def test_execute_order_propagates_validation_error(
             "passkey": "",
             "timeout": 5,
             "function": "minecraft.server.whitelist.add_ip",
-            "parameters": {"target_container": "mc-server"},
+            "environment": {"target_container": "mc-server"},
         }
     }
 

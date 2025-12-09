@@ -3,12 +3,26 @@
     "passkey": "testkey",
     "timeout": 10,
     "function": "testing.slow_echo",
-    "parameters": { }
+    "environment": { },
+    "meta": {
+      "description": "Echoes back the provided message after a specified delay.",
+      "mandatory_payload_fields": {},
+      "optional_payload_fields": {
+        "delay": "Number of seconds to delay before echoing back the message. Default is 8 seconds."
+      }
+    }
   },
   "test-docker-touch": {
     "passkey": "testkey",
     "timeout": 10,
     "function": "testing.docker_touch",
-    "parameters": { }
+    "environment": {
+        "target_container": "docker_test"
+    },
+    "meta": {
+      "description": "Creates a file inside the specified Docker container to test Docker connectivity.",
+      "mandatory_payload_fields": {},
+      "optional_payload_fields": {}
+    }
   }
 }

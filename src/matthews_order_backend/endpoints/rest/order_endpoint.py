@@ -61,7 +61,7 @@ async def execute_order(request: OrderRequest) -> OrderResponse:
 
     try:
         result = await asyncio.wait_for(
-            execute_callable(handler, parameters=action_config.parameters, payload=payload),
+            execute_callable(handler, environment=action_config.environment, payload=payload),
             timeout=timeout,
         )
     except asyncio.TimeoutError:
