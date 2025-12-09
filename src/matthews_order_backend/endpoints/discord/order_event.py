@@ -28,8 +28,8 @@ Importante porfa: responde SIEMPRE con un JSON válido:
  entretenernos entre colegas."
 }}
 
-Obviamente la acción debe ser la que mejor encaje con la petición. Y en serio, porfa, no añadas nada fuera del JSON o
-petas mi backend...
+Obviamente la acción debe ser la que mejor encaje con la petición y debes recoger y rellenar todos los campos para el
+payload. Y en serio, porfa, no añadas nada fuera del JSON o petas mi backend...
 """
 
 
