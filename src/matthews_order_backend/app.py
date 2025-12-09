@@ -4,13 +4,18 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import discord
 
-from src.matthews_order_backend.models import ConfigRepository
-from src.matthews_order_backend.app_utils import get_settings, get_logger
-from src.matthews_order_backend.endpoints.rest.order_endpoint import router as order_router
+import logging.config
+from src.matthews_order_backend.logger.logging_config import LOGGING_CONFIG
+from src.matthews_order_backend.logger.logger import get_logger
 
+from src.matthews_order_backend.models import ConfigRepository
+from src.matthews_order_backend.app_utils import get_settings
+from src.matthews_order_backend.endpoints.rest.order_endpoint import router as order_router
 from src.matthews_order_backend.endpoints.discord.order_event import OrderDiscordClient
 
-logger = get_logger()
+
+logging.config.dictConfig(LOGGING_CONFIG)
+logger = get_logger("matthews_order_backend.app")
 
 
 _config_repo: ConfigRepository | None = None
@@ -25,10 +30,7 @@ def _get_config_repo() -> ConfigRepository:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    configured_level = get_settings().log_level.upper()
-    log_level = getattr(logging, configured_level, logging.INFO)
-    logging.basicConfig(level=log_level)
-    logger.info("Matthews Back Order API ready (log level: %s)", configured_level)
+    logger.info("Matthews Back Order API ready (log level: %s)", get_settings().log_level)
     yield
 
 
@@ -43,6 +45,9 @@ app = FastAPI(
 intents = discord.Intents.default()
 intents.message_content = True
 app_discord = OrderDiscordClient(intents=intents)
+
+logger.debug("D Starting Matthews Back Order API...")
+logger.info("I Starting Matthews Back Order API...")
 
 
 # Health endpoint
@@ -60,7 +65,13 @@ app_discord.run(get_settings().discord_bot_token)
 
 def main():
     import uvicorn
-    uvicorn.run("src.matthews_order_backend.app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        "src.matthews_order_backend.app:app",
+        host="0.0.0.0",
+        port=8000,
+        log_config="src.matthews_order_backend.logger.logging_config",
+        # reload=True
+    )
 
 
 if __name__ == "__main__":

@@ -1,15 +1,16 @@
-from google import genai
 from google.genai import types
+from google import genai
 import discord
 import asyncio
 import time
 import json
 
+from src.matthews_order_backend.logger.logger import get_logger
 from src.matthews_order_backend.models import OrderResponse, FunctionRegistry
-from src.matthews_order_backend.app_utils import execute_callable, get_settings, get_config_repo, get_total_config_file, get_logger
+from src.matthews_order_backend.app_utils import execute_callable, get_settings, get_config_repo, get_total_config_file
 
 
-logger = get_logger()
+logger = get_logger("matthews_order_backend.endpoints.discord.order_event")
 
 AI_INPUT_PROMPT = """
 Ey Matthew! Que tal?! Ahora vas a tener que asignar una acción a cada mensaje de usuario. Solo puedes usar las acciones
@@ -76,8 +77,6 @@ class OrderDiscordClient(discord.Client):
             await message.channel.send(f"No tengo ni idea de lo que me estás pidiendo. Si estás seguro de que puedo hacerlo, ¿puedes reformular tu mensaje?")
             return None
 
-        await message.channel.send(extras.get("message"))
-
         try:
             handler = FunctionRegistry.resolve(action_config.function)
         except RuntimeError as exc:
@@ -85,6 +84,7 @@ class OrderDiscordClient(discord.Client):
             await message.channel.send("Algo le falta por programar a Sergio. Avisadle de que hay una acción sin una función implementada.")
             return None
 
+        await message.channel.send(extras.get("message"))
         timeout = action_config.resolved_timeout(get_settings().default_timeout)
         started = time.perf_counter()
 

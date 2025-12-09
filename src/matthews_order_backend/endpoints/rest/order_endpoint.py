@@ -2,11 +2,13 @@ import asyncio
 import time
 
 from fastapi import APIRouter, HTTPException, status
+
+from src.matthews_order_backend.logger.logger import get_logger
 from src.matthews_order_backend.models import OrderRequest, OrderResponse, FunctionRegistry
-from src.matthews_order_backend.app_utils import execute_callable, get_settings, get_config_repo, get_logger
+from src.matthews_order_backend.app_utils import execute_callable, get_settings, get_config_repo
 
 
-logger = get_logger()
+logger = get_logger("matthews_order_backend.endpoints.rest.order_endpoint")
 
 router = APIRouter()
 
