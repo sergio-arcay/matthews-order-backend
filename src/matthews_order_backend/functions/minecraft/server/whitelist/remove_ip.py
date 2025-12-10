@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import Any, Dict
 import asyncio
 
+from matthews_order_backend.utils.text import remove_ansi
+
 
 COMMAND = "rcon-cli ipwhitelist remove {ip_address}"
 
@@ -52,6 +54,7 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
     # Execute the command into the container to add the IP address to the whitelist
     command = COMMAND.format(ip_address=ip_address)
     result = await _exec_command_in_container(container, command)
+    result = remove_ansi(result)
 
     return {
         "message": f"Se completó la eliminación de la IP '{ip_address}' de la whitelist con el siguiente resultado: {result}",

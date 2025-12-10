@@ -46,8 +46,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 app_discord = OrderDiscordClient(intents=intents)
 
-logger.debug("D Starting Matthews Back Order API...")
-logger.info("I Starting Matthews Back Order API...")
+logger.info("Starting Matthews Back Order API...")
 
 
 # Health endpoint

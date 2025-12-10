@@ -106,7 +106,7 @@ class OrderDiscordClient(discord.Client):
 
         duration_ms = (time.perf_counter() - started) * 1000
         logger.info("Action '%s' executed in %.2f ms", action, duration_ms)
-        await message.channel.send(f"Tengo el siguiente resultado: {result["message"]}")
+        await message.channel.send(f"Tengo el siguiente resultado:\n\n{result["message"]}")
         return None
 
     @staticmethod
