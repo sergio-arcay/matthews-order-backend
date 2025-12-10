@@ -4,6 +4,8 @@ from typing import Any, Dict
 import asyncio
 
 from matthews_order_backend.utils.text import remove_ansi
+from src.matthews_order_backend.functions import FUNCTION_OUTPUT_MESSAGE_MODES
+DEFAULT_FUNCTION_OUTPUT_MESSAGE_MODE = FUNCTION_OUTPUT_MESSAGE_MODES.EXECUTION
 
 
 COMMAND = "rcon-cli ipwhitelist add {ip_address}"

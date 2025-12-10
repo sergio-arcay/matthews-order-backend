@@ -3,6 +3,9 @@ from __future__ import annotations
 import asyncio
 from typing import Any, Dict
 
+from src.matthews_order_backend.functions import FUNCTION_OUTPUT_MESSAGE_MODES
+DEFAULT_FUNCTION_OUTPUT_MESSAGE_MODE = FUNCTION_OUTPUT_MESSAGE_MODES.EXECUTION
+
 
 async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -13,5 +16,5 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
     if delay > 0:
         await asyncio.sleep(delay)
     return {
-        "message": f"El echo ha vuelto después de {delay} segundos."
+        "message": f"El echo ha vuelto después de {delay} segundos.",
     }

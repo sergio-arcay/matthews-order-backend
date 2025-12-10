@@ -8,6 +8,10 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
+    is_docker_container: bool = Field(
+        default=False,
+        description="Indicates if the application is running inside a Docker container.",
+    )
     api_config_path: Path = Field(
         default=Path(__file__).resolve().parents[2] / "api_config.json",
         description="Absolute path to the api_config.json file.",
@@ -17,8 +21,15 @@ class Settings(BaseSettings):
         gt=0,
         description="Fallback timeout (in seconds) when an action omits it.",
     )
-    log_level: str = Field(default="INFO", description="Python logging level.")
+    log_level: str = Field(
+        default="INFO",
+        description="Python logging level."
+    )
     discord_bot_token: str = Field(
         default="",
         description="Discord bot token used for connecting to the Discord API.",
+    )
+    gemini_api_key: str = Field(
+        default="",
+        description="API key for accessing Gemini models.",
     )

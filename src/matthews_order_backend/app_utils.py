@@ -35,15 +35,24 @@ def get_total_config_file() -> str:
 
 @lru_cache(maxsize=1)
 def _get_settings() -> Settings:
+    # Load environment variables from .env file if not in Docker
+    is_docker_container = os.getenv("IS_DOCKER_CONTAINER", "false").lower() == "true"
+    if not is_docker_container:
+        from dotenv import load_dotenv
+        load_dotenv()
+    # Build settings from the rest of environment variables
     api_config_path = Path(os.getenv("API_CONFIG_PATH", "")) or None
     default_timeout = float(os.getenv("DEFAULT_TIMEOUT", None))
     log_level = os.getenv("LOG_LEVEL", None)
     discord_bot_token = os.getenv("DISCORD_BOT_TOKEN", None)
+    gemini_api_key = os.getenv("GEMINI_API_KEY", None)
     return Settings(
+        is_docker_container=is_docker_container,
         api_config_path=api_config_path,
         default_timeout=default_timeout,
         log_level=log_level,
-        discord_bot_token=discord_bot_token
+        discord_bot_token=discord_bot_token,
+        gemini_api_key=gemini_api_key,
     )
 
 

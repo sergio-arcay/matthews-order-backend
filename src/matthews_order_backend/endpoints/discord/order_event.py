@@ -1,13 +1,15 @@
 from google.genai import types
 from google import genai
+import importlib
 import discord
 import asyncio
 import time
-import json
 
 from src.matthews_order_backend.logger.logger import get_logger
 from src.matthews_order_backend.models import OrderResponse, FunctionRegistry
 from src.matthews_order_backend.app_utils import execute_callable, get_settings, get_config_repo, get_total_config_file
+from src.matthews_order_backend.utils.json import loads_json_safe
+from src.matthews_order_backend.functions import FUNCTION_OUTPUT_MESSAGE_MODES
 
 
 logger = get_logger("matthews_order_backend.endpoints.discord.order_event")
@@ -23,9 +25,10 @@ Importante porfa: responde SIEMPRE con un JSON válido:
 {{"action":"<key_de_accion>",
  "payload":{{...}},
  "confidence":0.X,
- "message":"Respuesta muy corta al usuario previa a mostrar el resultado existoso. Puedes decirle lo que te de la gana
- pero haciendo referencia a que va a recibir ahora el resultado de la acción. Se creativo, que aquí estamos para
- entretenernos entre colegas."
+ "message":"Respuesta corta al usuario previa a mostrar el resultado existoso. Se creativo, que aquí estamos para
+ entretenernos entre colegas. Solo hay una excepción: si la acción es directamente una charla, como en el caso de la
+ acción "talk", entonces respóndele directamente con este campo message ya que está hablando directamente contigo y
+ pidiendo una tarea."
 }}
 
 Obviamente la acción debe ser la que mejor encaje con la petición y debes recoger y rellenar todos los campos para el
@@ -63,6 +66,7 @@ class OrderDiscordClient(discord.Client):
 
         try:
             action, payload, extras = OrderDiscordClient.select_action_ai(message_content, system_prompt=system_prompt)
+
             # TODO: use extras.confidence
         except ValueError as exc:
             await message.channel.send("Creo que hubo un error interpretando tu mensaje. Repítelo por favor.")
@@ -77,14 +81,23 @@ class OrderDiscordClient(discord.Client):
             await message.channel.send(f"No tengo ni idea de lo que me estás pidiendo. Si estás seguro de que puedo hacerlo, ¿puedes reformular tu mensaje?")
             return None
 
+        # Fill the environment with extras from AI selection
+        for key, value in extras.items():
+            action_config.environment[key] = value
+
         try:
             handler = FunctionRegistry.resolve(action_config.function)
+            handler_module = importlib.import_module(handler.__module__)
+            handler_message_mode = getattr(handler_module, "DEFAULT_FUNCTION_OUTPUT_MESSAGE_MODE", None)
         except RuntimeError as exc:
             logger.exception("Failed to resolve function for action %s", action)
             await message.channel.send("Algo le falta por programar a Sergio. Avisadle de que hay una acción sin una función implementada.")
             return None
 
-        await message.channel.send(extras.get("message"))
+        # Si la acción devuelve como mensaje un command output, enviamos el mensaje introductorio
+        if handler_message_mode == FUNCTION_OUTPUT_MESSAGE_MODES.EXECUTION:
+            await message.channel.send(extras.get("message"))
+
         timeout = action_config.resolved_timeout(get_settings().default_timeout)
         started = time.perf_counter()
 
@@ -106,7 +119,7 @@ class OrderDiscordClient(discord.Client):
 
         duration_ms = (time.perf_counter() - started) * 1000
         logger.info("Action '%s' executed in %.2f ms", action, duration_ms)
-        await message.channel.send(f"Tengo el siguiente resultado:\n\n{result["message"]}")
+        await message.channel.send(f"{result["message"]}")
         return None
 
     @staticmethod
@@ -134,36 +147,19 @@ class OrderDiscordClient(discord.Client):
         The client gets the API key from the environment variable `GEMINI_API_KEY`.
         """
 
-        def _loads_json_safe(s: str) -> dict:
-            """ Attempt to load JSON from a string, returning an empty dict on failure. Supports ```json ... ``` format.
-            """
-            try:
-                return json.loads(s)
-            except json.JSONDecodeError:
-                pass
-            # Attempt to extract JSON from markdown code block
-            if s.startswith("```") and s.endswith("```"):
-                s = s.strip()[7:-3].strip()
-                try:
-                    return json.loads(s)
-                except json.JSONDecodeError:
-                    pass
-            raise ValueError("Input is not valid JSON.")
-
         client = genai.Client()
         logger.debug(f"Selecting action with AI model {model} for message: {message_content}")
-        response = client.models.generate_content(
+        response_text = client.models.generate_content(
             model=model,
             config=types.GenerateContentConfig(
                 thinking_config=types.ThinkingConfig(thinking_budget=0),  # Disables thinking
                 system_instruction=system_prompt,
             ),
             contents=[message_content],
-        )
-        response_text = response.text
+        ).text
         logger.debug(f"AI response: {response_text}")
         try:
-            response_json = _loads_json_safe(response_text)
+            response_json = loads_json_safe(response_text)
             action = response_json.get("action")
             payload = response_json.get("payload", {})
             extras = {

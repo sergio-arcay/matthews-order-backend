@@ -4,6 +4,9 @@ import asyncio
 from typing import Any, Dict
 import uuid
 
+from src.matthews_order_backend.functions import FUNCTION_OUTPUT_MESSAGE_MODES
+DEFAULT_FUNCTION_OUTPUT_MESSAGE_MODE = FUNCTION_OUTPUT_MESSAGE_MODES.EXECUTION
+
 
 async def _check_container_running(container: str) -> bool:
     # Verifica si el contenedor está en ejecución
