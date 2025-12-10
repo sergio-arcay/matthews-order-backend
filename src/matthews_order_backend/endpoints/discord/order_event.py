@@ -1,14 +1,13 @@
-from google.genai import types
-from google import genai
 import importlib
 import discord
 import asyncio
 import time
 
+from src.matthews_order_backend.ai import select_action_with_openai
 from src.matthews_order_backend.logger.logger import get_logger
 from src.matthews_order_backend.models import OrderResponse, FunctionRegistry
+from src.matthews_order_backend.models.ai import ActionSelectionRequest
 from src.matthews_order_backend.app_utils import execute_callable, get_settings, get_config_repo, get_total_config_file
-from src.matthews_order_backend.utils.json import loads_json_safe
 from src.matthews_order_backend.functions import FUNCTION_OUTPUT_MESSAGE_MODES
 
 
@@ -119,7 +118,7 @@ class OrderDiscordClient(discord.Client):
 
         duration_ms = (time.perf_counter() - started) * 1000
         logger.info("Action '%s' executed in %.2f ms", action, duration_ms)
-        await message.channel.send(f"{result["message"]}")
+        await message.channel.send(f"{result['message']}")
         return None
 
     @staticmethod
@@ -141,32 +140,11 @@ class OrderDiscordClient(discord.Client):
         return action, payload, dict()
 
     @staticmethod
-    def select_action_ai(message_content: str, model: str = "gemini-2.5-flash", system_prompt: str = None) -> tuple[str, dict, dict]:
-        """ Select action and payload based on AI interpretation of message content.
-
-        The client gets the API key from the environment variable `GEMINI_API_KEY`.
-        """
-
-        client = genai.Client()
-        logger.debug(f"Selecting action with AI model {model} for message: {message_content}")
-        response_text = client.models.generate_content(
-            model=model,
-            config=types.GenerateContentConfig(
-                thinking_config=types.ThinkingConfig(thinking_budget=0),  # Disables thinking
-                system_instruction=system_prompt,
-            ),
-            contents=[message_content],
-        ).text
-        logger.debug(f"AI response: {response_text}")
-        try:
-            response_json = loads_json_safe(response_text)
-            action = response_json.get("action")
-            payload = response_json.get("payload", {})
-            extras = {
-                "confidence": response_json.get("confidence", 0),
-                "message": response_json.get("message", "")
-            }
-            return action, payload, extras
-        except ValueError as exc:
-            logger.exception("Failed to parse AI response: %s", response_text)
-            raise ValueError("Failed to parse AI response as JSON.") from exc
+    def select_action_ai(message_content: str, system_prompt: str = None) -> tuple[str, dict, dict]:
+        """ Select action and payload based on AI interpretation of message content. """
+        request = ActionSelectionRequest(
+            message=message_content,
+            system_prompt=system_prompt,
+        )
+        result = select_action_with_openai(request)
+        return result.action, result.payload, result.extras

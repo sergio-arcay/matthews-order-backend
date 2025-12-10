@@ -26,7 +26,11 @@ def get_config_repo() -> ConfigRepository:
 
 
 def get_total_config_file() -> str:
-    """Helper to read the entire config file as a string."""
+    """Helper to read the entire config file as a string.
+
+    TODO: Remove 'passkey' fields from config sections before returning.
+
+    """
     config_repo = get_config_repo()
     if not config_repo.source_path or not config_repo.source_path.exists():
         raise FileNotFoundError("Configuration file not found.")
@@ -46,6 +50,7 @@ def _get_settings() -> Settings:
     log_level = os.getenv("LOG_LEVEL", None)
     discord_bot_token = os.getenv("DISCORD_BOT_TOKEN", None)
     gemini_api_key = os.getenv("GEMINI_API_KEY", None)
+    openai_api_key = os.getenv("OPENAI_API_KEY", None)
     return Settings(
         is_docker_container=is_docker_container,
         api_config_path=api_config_path,
@@ -53,6 +58,7 @@ def _get_settings() -> Settings:
         log_level=log_level,
         discord_bot_token=discord_bot_token,
         gemini_api_key=gemini_api_key,
+        openai_api_key=openai_api_key,
     )
 
 

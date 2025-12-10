@@ -33,7 +33,7 @@ class OrderRequest(BaseModel):
 
     action: str = Field(..., description="Name of the action to execute.")
     passkey: str | None = Field(
-        default=None, description="Optional secret required by some actions."
+        default=None, description="Optional secret required by some ai."
     )
     payload: Dict[str, Any] | None = Field(
         default=None,

@@ -33,3 +33,7 @@ class Settings(BaseSettings):
         default="",
         description="API key for accessing Gemini models.",
     )
+    openai_api_key: str = Field(
+        default="",
+        description="API key for accessing OpenAI models.",
+    )
