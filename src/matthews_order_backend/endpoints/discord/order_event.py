@@ -14,8 +14,8 @@ from src.matthews_order_backend.functions import FUNCTION_OUTPUT_MESSAGE_MODES
 logger = get_logger("matthews_order_backend.endpoints.discord.order_event")
 
 AI_INPUT_PROMPT = """
-Ey Matthew! Que tal?! Ahora vas a tener que asignar una acción a cada mensaje de usuario. Solo puedes usar las acciones
-definidas en esta configuración que te he hecho:
+Tu eres Matthew. Que tal?! Ahora vas a currar en una misión muy concreta. Tienes que asignar una acción a los mensajes 
+que te vayan diciendo los usuarios. Solo escoger y usar las acciones definidas en esta configuración que te he hecho:
 
 {actions_config_json}
 
