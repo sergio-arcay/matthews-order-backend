@@ -15,6 +15,7 @@ dependencies = [
     "protobuf (>=6.33.2,<7.0.0)",
     "google-genai (>=1.54.0,<2.0.0)",
     "openai (>=1.54.3,<2.0.0)",
+    "g4f (>=6.7.1,<7.0.0)",
 ]
 
 [tool.poetry]

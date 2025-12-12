@@ -9,7 +9,7 @@ from src.matthews_order_backend.app_utils import get_settings
 from src.matthews_order_backend.logger.logger import get_logger
 
 
-logger = get_logger("matthews_order_backend.ai.gemini")
+logger = get_logger("matthews_order_backend.ai.gemini_client")
 
 DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 

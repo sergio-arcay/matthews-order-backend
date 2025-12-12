@@ -3,6 +3,7 @@ from typing import Any, Callable
 from pathlib import Path
 import inspect
 import asyncio
+import json
 import os
 
 from src.matthews_order_backend.models import FunctionRegistry, ConfigRepository
@@ -34,7 +35,23 @@ def get_total_config_file() -> str:
     config_repo = get_config_repo()
     if not config_repo.source_path or not config_repo.source_path.exists():
         raise FileNotFoundError("Configuration file not found.")
-    return config_repo.source_path.read_text(encoding="utf-8")
+    # Read the json file
+    with open(config_repo.source_path, "r", encoding="utf-8") as f:
+        json_data = json.load(f)
+    # Remove 'sensitive' fields: those starting with '__'
+    def remove_sensitive_fields(obj: Any) -> Any:
+        if isinstance(obj, dict):
+            return {
+                key: remove_sensitive_fields(value)
+                for key, value in obj.items()
+                if not key.startswith("__")
+            }
+        elif isinstance(obj, list):
+            return [remove_sensitive_fields(item) for item in obj]
+        else:
+            return obj
+    cleaned_data = remove_sensitive_fields(json_data)
+    return json.dumps(cleaned_data, indent=2)
 
 
 @lru_cache(maxsize=1)

@@ -1,6 +1,6 @@
 {
   "test-slow-echo": {
-    "passkey": "testkey",
+    "__passkey": "testkey",
     "timeout": 10,
     "function": "testing.slow_echo",
     "environment": { },
@@ -13,7 +13,7 @@
     }
   },
   "test-docker-touch": {
-    "passkey": "testkey",
+    "__passkey": "testkey",
     "timeout": 10,
     "function": "testing.docker_touch",
     "environment": {

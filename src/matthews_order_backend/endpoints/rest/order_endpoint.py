@@ -40,8 +40,8 @@ async def execute_order(request: OrderRequest) -> OrderResponse:
             detail=f"Action '{request.action}' is not configured.",
         )
 
-    if action_config.passkey:
-        if request.passkey != action_config.passkey:
+    if action_config.__passkey:
+        if request.passkey != action_config.__passkey:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid passkey.",

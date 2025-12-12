@@ -10,7 +10,7 @@ from src.matthews_order_backend.app_utils import get_settings
 from src.matthews_order_backend.logger.logger import get_logger
 
 
-logger = get_logger("matthews_order_backend.ai.openai")
+logger = get_logger("matthews_order_backend.ai.openai_client")
 
 DEFAULT_OPENAI_MODEL = "gpt-5-nano"
 

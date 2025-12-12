@@ -59,5 +59,5 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
     result = remove_ansi(result)
 
     return {
-        "message": f"Se completó la eliminación de la IP '{ip_address}' de la whitelist con el siguiente resultado: {result}",
+        "message": f"El resultado de la orden fue: \"{result}\"",
     }
