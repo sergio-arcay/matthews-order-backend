@@ -3,7 +3,11 @@ import discord
 import asyncio
 import time
 
-from src.matthews_order_backend.ai import select_action_with_openai
+from src.matthews_order_backend.ai import (
+    select_action_with_gemini,
+    select_action_with_openai,
+    select_action_with_g4f
+)
 from src.matthews_order_backend.logger.logger import get_logger
 from src.matthews_order_backend.models import OrderResponse, FunctionRegistry
 from src.matthews_order_backend.models.ai import ActionSelectionRequest
@@ -146,5 +150,5 @@ class OrderDiscordClient(discord.Client):
             message=message_content,
             system_prompt=system_prompt,
         )
-        result = select_action_with_openai(request)
+        result = select_action_with_g4f(request)
         return result.action, result.payload, result.extras

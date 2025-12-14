@@ -37,3 +37,11 @@ class Settings(BaseSettings):
         default="",
         description="API key for accessing OpenAI models.",
     )
+    g4f_api_base_url: str = Field(
+        default="",
+        description="Base URL for the G4F API endpoint.",
+    )
+    g4f_api_key: str = Field(
+        default="",
+        description="API key for accessing G4F models.",
+    )
