@@ -48,4 +48,17 @@ Content-Type: application/json
   }
 }
 
+### talk
+
+POST {{uri-lan}}/order
+Content-Type: application/json
+
+{
+  "action": "talk",
+  "passkey": "{{passkey-talk}}",
+  "payload": {
+    "message": "Hola! Que tal?"
+  }
+}
+
 ###

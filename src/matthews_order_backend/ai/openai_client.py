@@ -5,6 +5,8 @@ from openai import OpenAI
 from src.matthews_order_backend.models.ai import (
     ActionSelectionRequest,
     ActionSelectionResult,
+    TalkRequest,
+    TalkResult,
 )
 from src.matthews_order_backend.app_utils import get_settings
 from src.matthews_order_backend.logger.logger import get_logger
@@ -61,3 +63,31 @@ def select_action(request: ActionSelectionRequest, *, client: OpenAI | None = No
 
     logger.debug("OpenAI response: %s", response_text)
     return ActionSelectionResult.from_response_text(response_text)
+
+
+def talk(request: TalkRequest, *, client: OpenAI | None = None) -> TalkResult:
+    """ Have a conversation with an OpenAI model given a TalkRequest.
+    """
+    settings = get_settings()
+    api_key = settings.openai_api_key
+    client = client or _build_client(api_key=api_key)
+
+    model_name = request.model or DEFAULT_OPENAI_MODEL
+    logger.debug("Talking with OpenAI model %s", model_name)
+
+    messages = []
+    for msg in request.conversation:
+        messages.append({"role": msg.role, "content": msg.content})
+
+    response = client.chat.completions.create(
+        model=model_name,
+        messages=messages,
+    )
+    choice = response.choices[0].message if response.choices else None
+    response_text = _flatten_message_content(choice.content) if choice else ""
+
+    if not response_text:
+        raise ValueError("Empty response from OpenAI client.")
+
+    logger.debug("OpenAI response: %s", response_text)
+    return TalkResult(message=response_text, metadata={})

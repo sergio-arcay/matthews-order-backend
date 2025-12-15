@@ -19,7 +19,7 @@ FUNCTIONS_PACKAGE = "matthews_order_backend.functions"
 class ActionConfig(BaseModel):
     """Describes how to execute an action defined inside api_config.json."""
 
-    __passkey: str | None = None
+    _passkey: str | None = None
     timeout: float | None = Field(default=None, gt=0)
     function: str
     environment: Dict[str, Any] = Field(default_factory=dict)

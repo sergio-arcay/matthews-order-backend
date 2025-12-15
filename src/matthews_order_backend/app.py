@@ -57,7 +57,7 @@ async def healthz() -> dict[str, str]:
 
 
 # Include routers for FastAPI app
-app.include_router(order_router, prefix="/order")
+# app.include_router(order_router, prefix="/order")
 # Include events for Discord client
 app_discord.run(get_settings().discord_bot_token)
 
@@ -68,7 +68,6 @@ def main():
         "src.matthews_order_backend.app:app",
         host="0.0.0.0",
         port=8000,
-        log_config="src.matthews_order_backend.logger.logging_config",
         # reload=True
     )
 

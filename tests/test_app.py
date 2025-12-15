@@ -27,7 +27,7 @@ def build_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, config: Dict[s
 def test_execute_order_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config = {
         "add-ip": {
-            "__passkey": "",
+            "_passkey": "",
             "timeout": 5,
             "function": "minecraft.server.whitelist.add_ip",
             "environment": {"target_container": "mc-server"},
@@ -47,7 +47,7 @@ def test_execute_order_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
 def test_execute_order_requires_passkey(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config = {
         "secure-add": {
-            "__passkey": "letmein",
+            "_passkey": "letmein",
             "timeout": 5,
             "function": "minecraft.server.whitelist.add_ip",
             "environment": {"target_container": "mc-server"},
@@ -70,7 +70,7 @@ def test_execute_order_requires_passkey(tmp_path: Path, monkeypatch: pytest.Monk
 def test_execute_order_unknown_action(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config = {
         "add-ip": {
-            "__passkey": "",
+            "_passkey": "",
             "timeout": 5,
             "function": "minecraft.server.whitelist.add_ip",
             "environment": {"target_container": "mc-server"},
@@ -86,7 +86,7 @@ def test_execute_order_unknown_action(tmp_path: Path, monkeypatch: pytest.Monkey
 def test_execute_order_timeout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config = {
         "slow-task": {
-            "__passkey": "",
+            "_passkey": "",
             "timeout": 0.1,
             "function": "testing.slow_echo",
             "environment": {},
@@ -104,7 +104,7 @@ def test_execute_order_propagates_validation_error(
 ) -> None:
     config = {
         "add-ip": {
-            "__passkey": "",
+            "_passkey": "",
             "timeout": 5,
             "function": "minecraft.server.whitelist.add_ip",
             "environment": {"target_container": "mc-server"},
