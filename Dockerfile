@@ -34,6 +34,3 @@ RUN poetry config virtualenvs.create false && poetry install --no-interaction --
 
 # Expone el puerto del servidor
 EXPOSE 8000
-
-# Comando para ejecutar el servidor
-CMD ["poetry", "run", "deploy"]

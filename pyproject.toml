@@ -31,4 +31,5 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-deploy = "src.matthews_order_backend.app:main"
+api = "src.matthews_order_backend.app:main_api"
+discord = "src.matthews_order_backend.app:main_discord"

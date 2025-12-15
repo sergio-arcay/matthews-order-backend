@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-import discord
 
 import logging.config
 from src.matthews_order_backend.logger.logging_config import LOGGING_CONFIG
@@ -11,14 +10,15 @@ from src.matthews_order_backend.logger.logger import get_logger
 from src.matthews_order_backend.models import ConfigRepository
 from src.matthews_order_backend.app_utils import get_settings
 from src.matthews_order_backend.endpoints.rest.order_endpoint import router as order_router
+from src.matthews_order_backend.endpoints.rest.base_endpoint import router as base_router
 from src.matthews_order_backend.endpoints.discord.order_event import OrderDiscordClient
 
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = get_logger("matthews_order_backend.app")
 
-
 _config_repo: ConfigRepository | None = None
+
 
 def _get_config_repo() -> ConfigRepository:
     global _config_repo
@@ -41,29 +41,14 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
-# Init Discord client
-intents = discord.Intents.default()
-intents.message_content = True
-app_discord = OrderDiscordClient(intents=intents)
-
-logger.info("Starting Matthews Back Order API...")
 
 
-# Health endpoint
-@app.get("/healthz", summary="Health probe")
-async def healthz() -> dict[str, str]:
-    """Simple health endpoint used by orchestration platforms."""
-    return {"status": "ok"}
-
-
-# Include routers for FastAPI app
-# app.include_router(order_router, prefix="/order")
-# Include events for Discord client
-app_discord.run(get_settings().discord_bot_token)
-
-
-def main():
+def main_api():
     import uvicorn
+    # Include routers for FastAPI app
+    app.include_router(base_router, prefix="")
+    app.include_router(order_router, prefix="/order")
+    # Run FastAPI app with Uvicorn
     uvicorn.run(
         "src.matthews_order_backend.app:app",
         host="0.0.0.0",
@@ -72,6 +57,32 @@ def main():
     )
 
 
-if __name__ == "__main__":
+def main_discord():
+    import discord
+    # Init Discord client
+    intents = discord.Intents.default()
+    intents.message_content = True
+    app_discord = OrderDiscordClient(intents=intents)
+    # Include events for Discord client
+    logger.info("Starting Matthews Back Order Discord Bot")
+    app_discord.run(get_settings().discord_bot_token)
 
-    main()
+
+if __name__ == "__main__":
+    import sys
+
+    param1 = sys.argv[1] if len(sys.argv) > 1 else "api"
+
+    match param1:
+
+        case "api":
+
+            main_api()
+
+        case "discord":
+
+            main_discord()
+
+        case _:
+
+            logger.error("Invalid parameter. Use 'api' or 'discord'.")
