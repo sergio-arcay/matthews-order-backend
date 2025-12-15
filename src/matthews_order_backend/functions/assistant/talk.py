@@ -9,7 +9,7 @@ from src.matthews_order_backend.functions import FUNCTION_OUTPUT_MESSAGE_MODES
 DEFAULT_FUNCTION_OUTPUT_MESSAGE_MODE = FUNCTION_OUTPUT_MESSAGE_MODES.ASSISTANT
 
 from src.matthews_order_backend.ai import (
-    talk_to_openai,
+    talk_to_open_router,
 )
 
 
@@ -42,7 +42,7 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
         model=environment.get("model"),
         conversation=conversation,
     )
-    talk_result: TalkResult = talk_to_openai(talk_request)
+    talk_result: TalkResult = talk_to_open_router(talk_request)
     return {
         "message": talk_result.message,
     }

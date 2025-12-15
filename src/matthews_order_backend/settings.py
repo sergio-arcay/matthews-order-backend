@@ -37,6 +37,10 @@ class Settings(BaseSettings):
         default="",
         description="API key for accessing OpenAI models.",
     )
+    open_router_api_key: str = Field(
+        default="",
+        description="API key for accessing OpenRouter models.",
+    )
     g4f_api_base_url: str = Field(
         default="",
         description="Base URL for the G4F API endpoint.",

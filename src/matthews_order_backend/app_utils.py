@@ -68,6 +68,7 @@ def _get_settings() -> Settings:
     discord_bot_token = os.getenv("DISCORD_BOT_TOKEN", None)
     gemini_api_key = os.getenv("GEMINI_API_KEY", None)
     openai_api_key = os.getenv("OPENAI_API_KEY", None)
+    open_router_api_key = os.getenv("OPEN_ROUTER_API_KEY", None)
     g4f_api_base_url = os.getenv("G4F_API_BASE_URL", None)
     g4f_api_key = os.getenv("G4F_API_KEY", None)
     return Settings(
@@ -78,6 +79,7 @@ def _get_settings() -> Settings:
         discord_bot_token=discord_bot_token,
         gemini_api_key=gemini_api_key,
         openai_api_key=openai_api_key,
+        open_router_api_key=open_router_api_key,
         g4f_api_base_url=g4f_api_base_url,
         g4f_api_key=g4f_api_key,
     )

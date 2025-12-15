@@ -4,7 +4,7 @@ import asyncio
 import time
 
 from src.matthews_order_backend.ai import (
-    select_action_with_openai,
+    select_action_with_open_router,
 )
 from src.matthews_order_backend.logger.logger import get_logger
 from src.matthews_order_backend.models import OrderResponse, FunctionRegistry
@@ -148,5 +148,5 @@ class OrderDiscordClient(discord.Client):
             message=message_content,
             system_prompt=system_prompt,
         )
-        result = select_action_with_openai(request)
+        result = select_action_with_open_router(request)
         return result.action, result.payload, result.extras
