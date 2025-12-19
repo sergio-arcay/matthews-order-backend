@@ -49,6 +49,8 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
 
     # Execute the command into the container
     command = COMMAND.format()
+    # Ejecutamos dos veces el comando version ya que la primera ejecución a veces no devuelve nada
+    await _exec_command_in_container(container, command)
     result = await _exec_command_in_container(container, command)
     result = remove_ansi(result)
 
