@@ -92,7 +92,7 @@ class OrderDiscordClient(discord.Client):
             handler_message_mode = getattr(handler_module, "DEFAULT_FUNCTION_OUTPUT_MESSAGE_MODE", None)
         except RuntimeError as exc:
             logger.exception("Failed to resolve function for action %s", action)
-            await message.channel.send("Algo le falta por programar a Sergio. Avisadle de que hay una acción sin una función implementada.")
+            await message.channel.send("Algo le falta por programar a Sam. Avisadle de que hay una acción sin una función implementada.")
             return None
 
         # Si la acción devuelve como mensaje un command output, enviamos el mensaje introductorio
