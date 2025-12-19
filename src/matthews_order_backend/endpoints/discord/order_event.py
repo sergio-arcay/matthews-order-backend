@@ -15,6 +15,8 @@ from src.matthews_order_backend.functions import FUNCTION_OUTPUT_MESSAGE_MODES
 
 logger = get_logger("matthews_order_backend.endpoints.discord.order_event")
 
+MESSAGE_METADATA_TAG_IN_CONVERSATION = "$$$"
+
 AI_INPUT_PROMPT = """
 Tu eres Matthew. Que tal?! Ahora vas a currar en una misión muy concreta. Tienes que asignar una acción a los mensajes 
 que te vayan diciendo los usuarios. Solo escoger y usar las acciones definidas en esta configuración que te he hecho:
@@ -47,14 +49,15 @@ class OrderDiscordClient(discord.Client):
         if message.author == self.user:
             return None
 
-        if message.content.startswith('!'):
-            await OrderDiscordClient.execute_order(message)
+        # Check if the message starts with '!' or belongs to a "matthew" channel
+        if message.content.startswith('!') or message.channel.name == "matthew":
+            await OrderDiscordClient.execute_order(self, message)
             return None
 
         return None
 
     @staticmethod
-    async def execute_order(message: discord.Message) -> OrderResponse | None:
+    async def execute_order(self, message: discord.Message) -> OrderResponse | None:
         try:
             # Get action configurations from the repository
             actions = get_config_repo().get_actions()
@@ -63,10 +66,12 @@ class OrderDiscordClient(discord.Client):
             await message.channel.send("Hay un error en la configuración que me dió Sam. Me hablas cuando lo arregle.")
             return None
         message_content = message.content.lstrip('!').strip()  # Remove leading '!' and whitespaces
+        conversation = []
         system_prompt = AI_INPUT_PROMPT.format(actions_config_json=get_total_config_file())
 
         try:
-            action, payload, extras = OrderDiscordClient.select_action_ai(message_content, system_prompt=system_prompt)
+            action, payload, extras = await OrderDiscordClient.select_action_ai(message_content, system_prompt=system_prompt)
+            payload["conversation"] = conversation
 
             # TODO: use extras.confidence
         except ValueError as exc:
@@ -85,6 +90,17 @@ class OrderDiscordClient(discord.Client):
         # Fill the environment with extras from AI selection
         for key, value in extras.items():
             action_config.environment[key] = value
+
+        # Si es un canal "matthew", usamos todos los mensajes del canal como contexto para la conversación
+        # Si es solo un mensaje con prefijo '!', será un mensaje-respuesta individual
+        if message.channel.name == "matthew" and action_config.environment.get("enable_conversation_context"):
+            async for channel_message in message.channel.history(limit=action_config.environment.get("maximum_message_history", 5)):
+                # Añade fecha, hora y autor al mensaje formateado
+                formatted_message =\
+                    f"{MESSAGE_METADATA_TAG_IN_CONVERSATION}{channel_message.created_at.strftime('%Y-%m-%d %H:%M:%S')} {channel_message.author.name}{MESSAGE_METADATA_TAG_IN_CONVERSATION} {channel_message.content}"
+                conversation.append(
+                    {"role": "user" if channel_message.author != self.user else "assistant", "content": formatted_message})
+            conversation.reverse()
 
         try:
             handler = FunctionRegistry.resolve(action_config.function)
@@ -120,7 +136,14 @@ class OrderDiscordClient(discord.Client):
 
         duration_ms = (time.perf_counter() - started) * 1000
         logger.info("Action '%s' executed in %.2f ms", action, duration_ms)
-        await message.channel.send(f"{result['message']}")
+        result_message = result.get("message")
+
+        # Elimina el MESSAGE_METADATA_TAG_IN_CONVERSATION si lo tiene
+        if result_message and MESSAGE_METADATA_TAG_IN_CONVERSATION in result_message:
+            parts = result_message.split(MESSAGE_METADATA_TAG_IN_CONVERSATION)
+            result_message = parts[-1].strip()
+
+        await message.channel.send(result_message)
         return None
 
     @staticmethod
@@ -142,11 +165,12 @@ class OrderDiscordClient(discord.Client):
         return action, payload, dict()
 
     @staticmethod
-    def select_action_ai(message_content: str, system_prompt: str = None) -> tuple[str, dict, dict]:
+    async def select_action_ai(message_content: str, system_prompt: str = None) -> tuple[str, dict, dict]:
         """ Select action and payload based on AI interpretation of message content. """
         request = ActionSelectionRequest(
             message=message_content,
             system_prompt=system_prompt,
         )
-        result = select_action_with_open_router(request)
+        loop = asyncio.get_running_loop()
+        result = await loop.run_in_executor(None, select_action_with_open_router, request)
         return result.action, result.payload, result.extras

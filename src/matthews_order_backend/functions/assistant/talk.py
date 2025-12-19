@@ -25,18 +25,11 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
 
     When no message is provided, it uses a configured LLM client to generate a response based on the user's inputs.
     """
-    if environment.get("message"):
-        logger.debug("Using pre-existing message from environment.")
-        return {
-            "message": environment["message"],
-        }
-
-    logger.debug("Generating message using LLM client.")
     conversation = payload.get("conversation", [])
     if not conversation:
-        if environment.get("system_prompt"):
-            conversation.append({"role": "system", "content": environment["system_prompt"]})
         conversation.append({"role": "user", "content": payload.get("message", "")})
+    if environment.get("system_prompt"):
+        conversation.insert(0, {"role": "system", "content": environment["system_prompt"]})
 
     talk_request = TalkRequest(
         model=environment.get("model"),

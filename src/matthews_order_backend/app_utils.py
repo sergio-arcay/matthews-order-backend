@@ -27,9 +27,7 @@ def get_config_repo() -> ConfigRepository:
 
 
 def get_total_config_file() -> str:
-    """Helper to read the entire config file as a string.
-
-    TODO: Remove 'passkey' fields from config sections before returning.
+    """
 
     """
     config_repo = get_config_repo()
@@ -44,7 +42,7 @@ def get_total_config_file() -> str:
             return {
                 key: remove_sensitive_fields(value)
                 for key, value in obj.items()
-                if not key.startswith("__")
+                if not key.startswith("_")
             }
         elif isinstance(obj, list):
             return [remove_sensitive_fields(item) for item in obj]
