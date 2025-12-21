@@ -20,12 +20,12 @@ class ActionConfig(BaseModel):
     """Describes how to execute an action defined inside api_config.json."""
 
     _passkey: str | None = None
-    timeout: float | None = Field(default=None, gt=0)
+    _timeout: float | None = None
     function: str
     environment: Dict[str, Any] = Field(default_factory=dict)
 
     def resolved_timeout(self, fallback: float) -> float:
-        return self.timeout or fallback
+        return self._timeout or fallback
 
 
 class OrderRequest(BaseModel):
