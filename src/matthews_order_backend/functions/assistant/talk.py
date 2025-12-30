@@ -8,12 +8,27 @@ from src.matthews_order_backend.models.ai.talk_result import TalkResult
 from src.matthews_order_backend.functions import FUNCTION_OUTPUT_MESSAGE_MODES
 DEFAULT_FUNCTION_OUTPUT_MESSAGE_MODE = FUNCTION_OUTPUT_MESSAGE_MODES.ASSISTANT
 
+from src.matthews_order_backend.app_utils import get_total_config_file
+
 from src.matthews_order_backend.ai import (
     talk_to_open_router,
+    talk_to_gemini,
 )
 
 
 logger = get_logger("matthews_order_backend.functions.assistant.talk")
+
+
+AI_SYSTEM_PROMPT_SECONDARY = """
+Ahora vas a currar como asistente personal de un grupo de usuarios. Básicamente tienes que
+responder a sus mensajes de forma natural. Perteneces a un sistema que permite realizar las siguientes acciones sobre
+el servidor de estos usuarios:
+
+{actions_config_json}
+
+En tu caso, tu te encargas de las acciones relacionadas con la conversación y el soporte a los usuarios (por ejemplo la
+acción "talk").
+"""
 
 
 async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -28,14 +43,22 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
     conversation = payload.get("conversation", [])
     if not conversation:
         conversation.append({"role": "user", "content": payload.get("message", "")})
-    if environment.get("system_prompt"):
+    if environment.get("system_prompt"):  # PRIMARY SYSTEM PROMPT
         conversation.insert(0, {"role": "system", "content": environment["system_prompt"]})
+    if AI_SYSTEM_PROMPT_SECONDARY:
+        conversation.insert(1, {"role": "system", "content": AI_SYSTEM_PROMPT_SECONDARY.format(
+            actions_config_json=get_total_config_file(),
+        )})
 
     talk_request = TalkRequest(
         model=environment.get("model"),
         conversation=conversation,
     )
-    talk_result: TalkResult = talk_to_open_router(talk_request)
+    try:
+        talk_result: TalkResult = talk_to_gemini(talk_request)
+    except Exception:
+        logger.exception("Gemini talk failed, falling back to OpenRouter")
+        talk_result = talk_to_open_router(talk_request)
     return {
         "message": talk_result.message,
     }

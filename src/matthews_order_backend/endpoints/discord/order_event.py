@@ -30,8 +30,7 @@ Importante porfa: responde SIEMPRE con un JSON válido:
  "confidence":0.X,
  "message":"Respuesta corta al usuario previa a mostrar el resultado existoso. Se creativo, que aquí estamos para
  entretenernos entre colegas. Solo hay una excepción: si la acción es directamente una charla, como en el caso de la
- acción "talk", entonces respóndele directamente con este campo message ya que está hablando directamente contigo y
- pidiendo una tarea."
+ acción "talk", deja este campo vacio."
 }}
 
 Obviamente la acción debe ser la que mejor encaje con la petición y debes recoger y rellenar todos los campos para el
