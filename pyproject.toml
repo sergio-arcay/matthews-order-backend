@@ -1,9 +1,9 @@
 [project]
-name = "matthews_order_backend"
+name = "mob"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Sergio",email = "arcay.sergio@gmail.com"}
+    {name = "Sergio", email = "arcay.sergio@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "matthews_order_backend", from = "src"}]
+packages = [{include = "mob", from = "src"}]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2"
@@ -31,5 +31,5 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-api = "src.matthews_order_backend.app:main_api"
-discord = "src.matthews_order_backend.app:main_discord"
+api = "src.mob.app:main_api"
+discord = "src.mob.app:main_discord"

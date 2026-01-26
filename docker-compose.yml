@@ -1,7 +1,7 @@
 services:
-  matthews_order_backend_api:
-    image: matthews_order_backend  # docker build -t matthews_order_backend .
-    container_name: matthews_order_backend_api
+  mob_api:
+    image: mob  # docker build -t mob .
+    container_name: mob_api
     environment:
       - IS_DOCKER_CONTAINER=true
       - API_CONFIG_PATH=api_config.json
@@ -17,9 +17,9 @@ services:
       - .env
     command: poetry run api
 
-  matthews_order_backend_discord:
-    image: matthews_order_backend  # docker build -t matthews_order_backend .
-    container_name: matthews_order_backend_discord
+  mob_discord:
+    image: mob  # docker build -t mob .
+    container_name: mob_discord
     environment:
       - IS_DOCKER_CONTAINER=true
       - API_CONFIG_PATH=api_config.json

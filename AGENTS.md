@@ -3,20 +3,20 @@ AGENTS Guide
 
 Context
 -------
-- Proyecto: Matthews Order Backend (FastAPI + bot de Discord) para ejecutar acciones declaradas en `api_config.json`.
+- Proyecto: MOB - Matthews Order Backend (FastAPI + bot de Discord) para ejecutar acciones declaradas en `api_config.json`.
 - Entry points: `poetry run api` (REST) y `poetry run discord` (bot). Ambos definidos en `pyproject.toml`.
-- Código principal: `src/matthews_order_backend/*`; funciones en `functions/`, clientes LLM en `ai/`, endpoints en `endpoints/`.
+- Código principal: `src/*`; funciones en `functions/`, clientes LLM en `ai/`, endpoints en `endpoints/`.
 
 Configuración y entorno
 -----------------------
-- Variables en `.env` (ver `example.env`) y esquema en `src/matthews_order_backend/settings.py`: `API_CONFIG_PATH`, `DEFAULT_TIMEOUT`, `LOG_LEVEL`, tokens/keys de IA y `DISCORD_BOT_TOKEN`.
+- Variables en `.env` (ver `example.env`) y esquema en `src/settings.py`: `API_CONFIG_PATH`, `DEFAULT_TIMEOUT`, `LOG_LEVEL`, tokens/keys de IA y `DISCORD_BOT_TOKEN`.
 - `api_config.json` es crítico: define acciones, passkeys, timeouts y entornos. No versionar secretos; monta el archivo al contenedor si corres en Docker.
 - En Docker, `IS_DOCKER_CONTAINER=true` evita cargar `.env` vía dotenv; monta `/var/run/docker.sock` si las funciones necesitan Docker.
 
 Ejecución
 ---------
 - Local: `poetry install`; `poetry run api` (puerto 8000); `poetry run discord` para el bot.
-- Docker: construir `matthews_order_backend`; `docker-compose up -d` levanta API + bot. Volúmenes clave: `./api_config.json:/app/api_config.json` y el socket Docker.
+- Docker: construir `mob`; `docker-compose up -d` levanta API + bot. Volúmenes clave: `./api_config.json:/app/api_config.json` y el socket Docker.
 - Salud: `GET /healthz`; órdenes: `POST /order` con `action`, `passkey` (si aplica) y `payload`.
 
 Arquitectura rápida
