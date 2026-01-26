@@ -17,24 +17,23 @@ logger = get_logger("matthews_order_backend.endpoints.discord.order_event")
 
 MESSAGE_METADATA_TAG_IN_CONVERSATION = "$$$"
 
-AI_INPUT_PROMPT = """
-Tu eres Matthew. Que tal?! Ahora vas a currar en una misión muy concreta. Tienes que asignar una acción a los mensajes 
-que te vayan diciendo los usuarios. Solo escoger y usar las acciones definidas en esta configuración que te he hecho:
+AI_PROMPT_SELECT_ACTION = """
+Tu eres Matthew. Ahora vas a trabajar como asistente en un grupo de chat. Tienes que asignar una acción a los mensajes 
+que te vayan diciendo los usuarios. Solo puedes escoger y usar las acciones definidas en esta configuración:
 
 {actions_config_json}
 
-Importante porfa: responde SIEMPRE con un JSON válido:
+Muy importante: responde SIEMPRE con un JSON válido del tipo:
 
 {{"action":"<key_de_accion>",
  "payload":{{...}},
  "confidence":0.X,
- "message":"Respuesta corta al usuario previa a mostrar el resultado existoso. Se creativo, que aquí estamos para
- entretenernos entre colegas. Solo hay una excepción: si la acción es directamente una charla, como en el caso de la
- acción "talk", deja este campo vacio."
+ "message":"Respuesta corta al usuario previa a mostrar el resultado existoso. Solo hay una excepción: si la acción es
+ una simple conversación, como en el caso de la acción "talk", deja este campo vacio."
 }}
 
 Obviamente la acción debe ser la que mejor encaje con la petición y debes recoger y rellenar todos los campos para el
-payload. Y en serio, porfa, no añadas nada fuera del JSON o petas mi backend...
+payload. Y recalco, no añadas nada fuera del JSON o rompes el sistema...
 """
 
 
@@ -66,7 +65,7 @@ class OrderDiscordClient(discord.Client):
             return None
         message_content = message.content.lstrip('!').strip()  # Remove leading '!' and whitespaces
         conversation = []
-        system_prompt = AI_INPUT_PROMPT.format(actions_config_json=get_total_config_file())
+        system_prompt = AI_PROMPT_SELECT_ACTION.format(actions_config_json=get_total_config_file())
 
         try:
             action, payload, extras = await OrderDiscordClient.select_action_ai(message_content, system_prompt=system_prompt)
@@ -130,7 +129,7 @@ class OrderDiscordClient(discord.Client):
             return None
         except Exception as exc:
             logger.exception("Action '%s' failed with an unexpected error.", action)
-            await message.channel.send(f"No tengo ni siquiera una mínima pista de que ha fallado, pero ha dado un error genérico al ejecutar la función asociada a la acción '{action}'.")
+            await message.channel.send(f"No tengo ni idea de que ha fallado, pero ha dado un error genérico al ejecutar la función asociada a la acción '{action}'.")
             return None
 
         duration_ms = (time.perf_counter() - started) * 1000
