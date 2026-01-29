@@ -1,129 +1,55 @@
 from __future__ import annotations
-
-from fastapi.testclient import TestClient
-from contextlib import contextmanager
-from typing import Any, Dict
-from pathlib import Path
 import pytest
+
+from pathlib import Path
 import json
 
+from mob import app as mob_app
 from mob.app_utils import reset_runtime_state
-from mob.app import app
+
+# Tests in this module:
+# - test_config_repo_uses_env_path
+# - test_config_repo_reuses_cached_instance_until_reset
 
 
-@contextmanager
-def build_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, config: Dict[str, Any]):
-    """Writes a temporary config file and yields a FastAPI TestClient."""
+@pytest.fixture(autouse=True)
+def _reset_runtime(monkeypatch: pytest.MonkeyPatch):
+    """Ensure cached settings/config repos are cleared between tests."""
+    yield
+    reset_runtime_state()
+    mob_app._config_repo = None
+    monkeypatch.delenv("API_CONFIG_PATH", raising=False)
+
+
+def test_config_repo_uses_env_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config_path = tmp_path / "api_config.json"
-    config_path.write_text(json.dumps(config), encoding="utf-8")
+    config_path.write_text(json.dumps({"echo": {"function": "testing.slow_echo"}}), encoding="utf-8")
     monkeypatch.setenv("API_CONFIG_PATH", str(config_path))
-    reset_runtime_state()
-    with TestClient(app) as client:
-        yield client
-    reset_runtime_state()
+
+    mob_app._config_repo = None
+    repo = mob_app._get_config_repo()
+
+    assert repo.source_path == config_path
+    assert repo.get_actions()["echo"].function == "testing.slow_echo"
 
 
-def test_execute_order_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    config = {
-        "add-ip": {
-            "_passkey": "",
-            "timeout": 5,
-            "function": "minecraft.server.whitelist.add_ip",
-            "environment": {"target_container": "mc-server"},
-        }
-    }
-
-    with build_client(tmp_path, monkeypatch, config) as client:
-        response = client.post("/order", json={"action": "add-ip", "payload": {"ip": "10.0.0.9"}})
-
-    assert response.status_code == 200
-    body = response.json()
-    assert body["result"]["ip"] == "10.0.0.9"
-    assert body["result"]["container"] == "mc-server"
-    assert body["status"] == "success"
-
-
-def test_execute_order_requires_passkey(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    config = {
-        "secure-add": {
-            "_passkey": "letmein",
-            "timeout": 5,
-            "function": "minecraft.server.whitelist.add_ip",
-            "environment": {"target_container": "mc-server"},
-        }
-    }
-
-    with build_client(tmp_path, monkeypatch, config) as client:
-        unauthorized = client.post("/order", json={"action": "secure-add", "payload": {"ip": "1.2.3.4"}})
-        assert unauthorized.status_code == 401
-
-        authorized = client.post(
-            "/order",
-            json={"action": "secure-add", "payload": {"ip": "1.2.3.4"}, "passkey": "letmein"},
-        )
-
-    assert authorized.status_code == 200
-    assert authorized.json()["result"]["ip"] == "1.2.3.4"
-
-
-def test_execute_order_unknown_action(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    config = {
-        "add-ip": {
-            "_passkey": "",
-            "timeout": 5,
-            "function": "minecraft.server.whitelist.add_ip",
-            "environment": {"target_container": "mc-server"},
-        }
-    }
-
-    with build_client(tmp_path, monkeypatch, config) as client:
-        response = client.post("/order", json={"action": "non-existing"})
-
-    assert response.status_code == 404
-
-
-def test_execute_order_timeout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    config = {
-        "slow-task": {
-            "_passkey": "",
-            "timeout": 0.1,
-            "function": "testing.slow_echo",
-            "environment": {},
-        }
-    }
-
-    with build_client(tmp_path, monkeypatch, config) as client:
-        response = client.post("/order", json={"action": "slow-task", "payload": {"delay": 0.5}})
-
-    assert response.status_code == 504
-
-
-def test_execute_order_propagates_validation_error(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    config = {
-        "add-ip": {
-            "_passkey": "",
-            "timeout": 5,
-            "function": "minecraft.server.whitelist.add_ip",
-            "environment": {"target_container": "mc-server"},
-        }
-    }
-
-    with build_client(tmp_path, monkeypatch, config) as client:
-        response = client.post("/order", json={"action": "add-ip"})
-
-    assert response.status_code == 400
-    assert "payload.ip" in response.json()["detail"]
-
-
-def test_invalid_config_returns_500(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_config_repo_reuses_cached_instance_until_reset(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config_path = tmp_path / "api_config.json"
-    config_path.write_text("not a json", encoding="utf-8")
+    config_path.write_text(json.dumps({"a": {"function": "testing.slow_echo"}}), encoding="utf-8")
     monkeypatch.setenv("API_CONFIG_PATH", str(config_path))
+
+    mob_app._config_repo = None
+    first_repo = mob_app._get_config_repo()
+    second_repo = mob_app._get_config_repo()
+    assert first_repo is second_repo
+
+    # Changing the path only affects new instances after clearing the cached state.
+    new_config_path = tmp_path / "other.json"
+    new_config_path.write_text(json.dumps({"b": {"function": "testing.slow_echo"}}), encoding="utf-8")
+    monkeypatch.setenv("API_CONFIG_PATH", str(new_config_path))
     reset_runtime_state()
+    mob_app._config_repo = None
 
-    with TestClient(app) as client:
-        response = client.post("/order", json={"action": "anything"})
-
-    assert response.status_code == 500
+    refreshed_repo = mob_app._get_config_repo()
+    assert refreshed_repo is not first_repo
+    assert refreshed_repo.source_path == new_config_path

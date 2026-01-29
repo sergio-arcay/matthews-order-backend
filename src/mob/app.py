@@ -3,6 +3,8 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import logging.config
+import discord
+import sys
 
 from mob.logger.logging_config import LOGGING_CONFIG
 from mob.logger.logger import get_logger
@@ -39,13 +41,18 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+# Include routers for FastAPI app
+app.include_router(base_router, prefix="")
+app.include_router(order_router, prefix="/order")
+
+# Init Discord client
+intents = discord.Intents.default()
+intents.message_content = True
+app_discord = OrderDiscordClient(intents=intents)
 
 
 def main_api():
     import uvicorn
-    # Include routers for FastAPI app
-    app.include_router(base_router, prefix="")
-    app.include_router(order_router, prefix="/order")
     # Run FastAPI app with Uvicorn
     logger.info("Starting MOB as REST API")
     uvicorn.run(
@@ -57,18 +64,12 @@ def main_api():
 
 
 def main_discord():
-    import discord
-    # Init Discord client
-    intents = discord.Intents.default()
-    intents.message_content = True
-    app_discord = OrderDiscordClient(intents=intents)
     # Include events for Discord client
     logger.info("Starting MOB as Discord Bot")
     app_discord.run(get_settings().discord_bot_token)
 
 
 if __name__ == "__main__":
-    import sys
 
     param1 = sys.argv[1] if len(sys.argv) > 1 else "api"
 
