@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import Any, Dict
-import asyncio
 
-from mob.utils.text import remove_ansi
+import asyncio
+from typing import Any, Dict
+
 from mob.functions import FUNCTION_OUTPUT_MESSAGE_MODES
+from mob.utils.text import remove_ansi
 
 DEFAULT_FUNCTION_OUTPUT_MESSAGE_MODE = FUNCTION_OUTPUT_MESSAGE_MODES.EXECUTION
 
@@ -12,22 +13,31 @@ COMMAND = "rcon-cli list"
 
 
 async def _check_container_running(container: str) -> bool:
-    """ Verify if the docker container is running """
+    """Verify if the docker container is running"""
     proc = await asyncio.create_subprocess_exec(
-        "docker", "inspect", "-f", "{{.State.Running}}", container,
+        "docker",
+        "inspect",
+        "-f",
+        "{{.State.Running}}",
+        container,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
+        stderr=asyncio.subprocess.PIPE,
     )
     stdout, _ = await proc.communicate()
     return stdout.decode().strip() == "true"
 
 
 async def _exec_command_in_container(container: str, command: str) -> str:
-    """ Execute a command inside a docker container """
+    """Execute a command inside a docker container"""
     proc = await asyncio.create_subprocess_exec(
-        "docker", "exec", container, "sh", "-c", command,
+        "docker",
+        "exec",
+        container,
+        "sh",
+        "-c",
+        command,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
+        stderr=asyncio.subprocess.PIPE,
     )
     stdout, stderr = await proc.communicate()
     if proc.returncode != 0:
@@ -53,5 +63,5 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
     result = remove_ansi(result)
 
     return {
-        "message": f"El resultado de la orden fue: \"{result}\"",
+        "message": f'El resultado de la orden fue: "{result}"',
     }

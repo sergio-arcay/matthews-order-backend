@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
 import logging.config
-import discord
 import sys
+from contextlib import asynccontextmanager
 
-from mob.logger.logging_config import LOGGING_CONFIG
-from mob.logger.logger import get_logger
-from mob.models import ConfigRepository
+import discord
+from fastapi import FastAPI
+
 from mob.app_utils import get_settings
-from mob.endpoints.rest.order_endpoint import router as order_router
-from mob.endpoints.rest.base_endpoint import router as base_router
 from mob.endpoints.discord.order_event import OrderDiscordClient
+from mob.endpoints.rest.base_endpoint import router as base_router
+from mob.endpoints.rest.order_endpoint import router as order_router
+from mob.logger.logger import get_logger
+from mob.logger.logging_config import LOGGING_CONFIG
+from mob.models import ConfigRepository
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = get_logger("app")
@@ -53,6 +54,7 @@ app_discord = OrderDiscordClient(intents=intents)
 
 def main_api():
     import uvicorn
+
     # Run FastAPI app with Uvicorn
     logger.info("Starting MOB as REST API")
     uvicorn.run(

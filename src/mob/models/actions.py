@@ -1,11 +1,12 @@
 from __future__ import annotations
-from typing import Any, Callable, Dict
-from pydantic import BaseModel, Field
-from pathlib import Path
-import importlib
-import threading
-import json
 
+import importlib
+import json
+import threading
+from pathlib import Path
+from typing import Any, Callable, Dict
+
+from pydantic import BaseModel, Field
 
 # region Constants
 
@@ -31,9 +32,7 @@ class OrderRequest(BaseModel):
     """Incoming payload for a /order request."""
 
     action: str = Field(..., description="Name of the action to execute.")
-    passkey: str | None = Field(
-        default=None, description="Optional secret required by some ai."
-    )
+    passkey: str | None = Field(default=None, description="Optional secret required by some ai.")
     payload: Dict[str, Any] | None = Field(
         default=None,
         description="Runtime payload forwarded to the target function.",
@@ -60,9 +59,7 @@ class ConfigRepository:
 
     def _read_from_disk(self) -> dict[str, ActionConfig]:
         if not self.source_path.exists():
-            raise FileNotFoundError(
-                f"api_config.json not found at {self.source_path!s}"
-            )
+            raise FileNotFoundError(f"api_config.json not found at {self.source_path!s}")
 
         try:
             raw_data = json.loads(self.source_path.read_text(encoding="utf-8"))
@@ -74,9 +71,7 @@ class ConfigRepository:
         actions: dict[str, ActionConfig] = {}
         for action_name, action_payload in raw_data.items():
             if not isinstance(action_payload, dict):
-                raise ValueError(
-                    f"Action '{action_name}' must be defined with an object value."
-                )
+                raise ValueError(f"Action '{action_name}' must be defined with an object value.")
             actions[action_name] = ActionConfig(**action_payload)
 
         return actions
@@ -89,16 +84,10 @@ class ConfigRepository:
         try:
             mtime = self.source_path.stat().st_mtime
         except FileNotFoundError as exc:
-            raise FileNotFoundError(
-                f"api_config.json not found at {self.source_path!s}"
-            ) from exc
+            raise FileNotFoundError(f"api_config.json not found at {self.source_path!s}") from exc
 
         with self._lock:
-            if (
-                self._cached_actions is None
-                or self._cache_mtime is None
-                or mtime != self._cache_mtime
-            ):
+            if self._cached_actions is None or self._cache_mtime is None or mtime != self._cache_mtime:
                 self._cached_actions = self._read_from_disk()
                 self._cache_mtime = mtime
 
@@ -135,12 +124,11 @@ class FunctionRegistry:
         try:
             return getattr(module, attr_name)
         except AttributeError as exc:
-            raise RuntimeError(
-                f"Callable '{attr_name}' not found in module '{dotted_path}'."
-            ) from exc
+            raise RuntimeError(f"Callable '{attr_name}' not found in module '{dotted_path}'.") from exc
 
 
 # region Utils
+
 
 def _split_function_target(target: str) -> tuple[str, str]:
     """
@@ -153,5 +141,6 @@ def _split_function_target(target: str) -> tuple[str, str]:
         module_path, attr_name = target, DEFAULT_FUNCTION_NAME
 
     return module_path, attr_name
+
 
 # endregion

@@ -1,5 +1,6 @@
-from openai import OpenAI as Client
 from typing import Iterable
+
+from openai import OpenAI as Client
 
 from mob.app_utils import get_settings
 from mob.logger.logger import get_logger
@@ -68,8 +69,7 @@ def select_action(request: ActionSelectionRequest, *, client: Client | None = No
 
 
 def talk(request: TalkRequest, *, client: Client | None = None) -> TalkResult:
-    """ Have a conversation with G4F given a TalkRequest.
-    """
+    """Have a conversation with G4F given a TalkRequest."""
     settings = get_settings()
     api_base_url = settings.g4f_api_base_url
     api_key = settings.g4f_api_key

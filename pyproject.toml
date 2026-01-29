@@ -25,6 +25,12 @@ packages = [{include = "mob", from = "src"}]
 pytest = "^8.2"
 httpx = "^0.28.0"
 pytest-asyncio = "^0.23.6"
+black = "^26.1.0"
+isort = "^7.0.0"
+flake8 = "^7.3.0"
+nox = "^2025.11.12"
+pytest-cov = "^7.0.0"
+mypy = "^1.19.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -33,3 +39,9 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 api = "src.mob.app:main_api"
 discord = "src.mob.app:main_discord"
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"

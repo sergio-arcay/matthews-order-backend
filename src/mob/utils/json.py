@@ -1,6 +1,6 @@
-from typing import Dict, Any, Union
 import json
 import re
+from typing import Any, Dict, Union
 
 
 def loads_json_safe(s: str, return_empty_on_failure: bool = True) -> Union[Dict[str, Any], None]:
@@ -36,9 +36,9 @@ def loads_json_safe(s: str, return_empty_on_failure: bool = True) -> Union[Dict[
 
     # Strategy 2: Extract from markdown code blocks
     json_patterns = [
-        r'```json\s*\n?(.*?)\n?\s*```',  # ```json ... ```
-        r'```\s*\n?(.*?)\n?\s*```',  # ``` ... ```
-        r'`(.*?)`',  # `...` (single backticks)
+        r"```json\s*\n?(.*?)\n?\s*```",  # ```json ... ```
+        r"```\s*\n?(.*?)\n?\s*```",  # ``` ... ```
+        r"`(.*?)`",  # `...` (single backticks)
     ]
 
     for pattern in json_patterns:
@@ -53,8 +53,8 @@ def loads_json_safe(s: str, return_empty_on_failure: bool = True) -> Union[Dict[
 
     # Strategy 3: Find JSON-like content between braces
     brace_patterns = [
-        r'\{.*\}',  # Greedy match for outermost braces
-        r'\[.*\]',  # Array format
+        r"\{.*\}",  # Greedy match for outermost braces
+        r"\[.*\]",  # Array format
     ]
 
     for pattern in brace_patterns:
@@ -68,31 +68,24 @@ def loads_json_safe(s: str, return_empty_on_failure: bool = True) -> Union[Dict[
     # Strategy 4: Clean common LLM formatting issues
     cleaning_attempts = [
         # Remove common prefixes/suffixes
-        lambda x: re.sub(r'^[^{[]*', '', x),  # Remove text before JSON
-        lambda x: re.sub(r'[^}\]]*$', '', x),  # Remove text after JSON
-
+        lambda x: re.sub(r"^[^{[]*", "", x),  # Remove text before JSON
+        lambda x: re.sub(r"[^}\]]*$", "", x),  # Remove text after JSON
         # Fix trailing commas
-        lambda x: re.sub(r',(\s*[}\]])', r'\1', x),
-
+        lambda x: re.sub(r",(\s*[}\]])", r"\1", x),
         # Fix single quotes to double quotes (careful with contractions)
         lambda x: re.sub(r"(?<![a-zA-Z])'([^']*?)'(?=\s*:)", r'"\1"', x),  # Keys
         lambda x: re.sub(r":\s*'([^']*?)'", r': "\1"', x),  # Values
-
         # Fix unquoted keys
-        lambda x: re.sub(r'([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:', r'\1"\2":', x),
-
+        lambda x: re.sub(r"([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:", r'\1"\2":', x),
         # Fix boolean/null values that might be incorrectly quoted
-        lambda x: re.sub(r':\s*"(true|false|null)"', r': \1', x, flags=re.IGNORECASE),
-
+        lambda x: re.sub(r':\s*"(true|false|null)"', r": \1", x, flags=re.IGNORECASE),
         # Remove comments (// or /* */)
-        lambda x: re.sub(r'//.*?$', '', x, flags=re.MULTILINE),
-        lambda x: re.sub(r'/\*.*?\*/', '', x, flags=re.DOTALL),
-
+        lambda x: re.sub(r"//.*?$", "", x, flags=re.MULTILINE),
+        lambda x: re.sub(r"/\*.*?\*/", "", x, flags=re.DOTALL),
         # Fix escaped quotes issues
         lambda x: x.replace('\\"', '"').replace("\\'", "'"),
-
         # Remove extra whitespace and newlines
-        lambda x: re.sub(r'\s+', ' ', x).strip(),
+        lambda x: re.sub(r"\s+", " ", x).strip(),
     ]
 
     current = s
@@ -113,14 +106,14 @@ def loads_json_safe(s: str, return_empty_on_failure: bool = True) -> Union[Dict[
     start_idx = -1
 
     for i, char in enumerate(s):
-        if char == '{':
+        if char == "{":
             if brace_depth == 0:
                 start_idx = i
             brace_depth += 1
-        elif char == '}':
+        elif char == "}":
             brace_depth -= 1
             if brace_depth == 0 and start_idx != -1:
-                potential_jsons.append(s[start_idx:i + 1])
+                potential_jsons.append(s[start_idx : i + 1])
 
     # Try parsing each potential JSON
     for potential in potential_jsons:
@@ -138,16 +131,16 @@ def loads_json_safe(s: str, return_empty_on_failure: bool = True) -> Union[Dict[
             result = {}
             for key, value in matches:
                 # Try to convert value to appropriate type
-                value = value.strip().strip('"\'')
-                if value.lower() == 'true':
+                value = value.strip().strip("\"'")
+                if value.lower() == "true":
                     value = True
-                elif value.lower() == 'false':
+                elif value.lower() == "false":
                     value = False
-                elif value.lower() == 'null':
+                elif value.lower() == "null":
                     value = None
                 elif value.isdigit():
                     value = int(value)
-                elif re.match(r'^\d+\.\d+$', value):
+                elif re.match(r"^\d+\.\d+$", value):
                     value = float(value)
                 result[key] = value
 
@@ -163,9 +156,9 @@ def loads_json_safe(s: str, return_empty_on_failure: bool = True) -> Union[Dict[
         raise ValueError(f"Could not extract valid JSON from input: {original_s[:100]}...")
 
 
-def extract_json_from_llm_response(response: str,
-                                   expected_keys: list = None,
-                                   default_values: dict = None) -> Dict[str, Any]:
+def extract_json_from_llm_response(
+    response: str, expected_keys: list = None, default_values: dict = None
+) -> Dict[str, Any]:
     """
     Enhanced version that validates expected structure
 

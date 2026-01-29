@@ -1,16 +1,16 @@
-from fastapi import APIRouter, HTTPException, status
 import asyncio
 import time
 
+from fastapi import APIRouter, HTTPException, status
 
+from mob.app_utils import execute_callable, get_config_repo, get_settings
 from mob.logger.logger import get_logger
-from mob.models import OrderRequest, OrderResponse, FunctionRegistry
-from mob.app_utils import execute_callable, get_settings, get_config_repo
-
+from mob.models import FunctionRegistry, OrderRequest, OrderResponse
 
 logger = get_logger("endpoints.rest.order_endpoint")
 
 router = APIRouter()
+
 
 @router.post(
     "",

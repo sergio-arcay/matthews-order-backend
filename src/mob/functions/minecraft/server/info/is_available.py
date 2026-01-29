@@ -1,8 +1,10 @@
 from __future__ import annotations
-from typing import Any, Dict
-import requests
+
 import asyncio
 import socket
+from typing import Any, Dict
+
+import requests
 
 from mob.functions import FUNCTION_OUTPUT_MESSAGE_MODES
 
@@ -13,22 +15,31 @@ COMMAND = None
 
 
 async def _check_container_running(container: str) -> bool:
-    """ Verify if the docker container is running """
+    """Verify if the docker container is running"""
     proc = await asyncio.create_subprocess_exec(
-        "docker", "inspect", "-f", "{{.State.Running}}", container,
+        "docker",
+        "inspect",
+        "-f",
+        "{{.State.Running}}",
+        container,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
+        stderr=asyncio.subprocess.PIPE,
     )
     stdout, _ = await proc.communicate()
     return stdout.decode().strip() == "true"
 
 
 async def _exec_command_in_container(container: str, command: str) -> str:
-    """ Execute a command inside a docker container """
+    """Execute a command inside a docker container"""
     proc = await asyncio.create_subprocess_exec(
-        "docker", "exec", container, "sh", "-c", command,
+        "docker",
+        "exec",
+        container,
+        "sh",
+        "-c",
+        command,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
+        stderr=asyncio.subprocess.PIPE,
     )
     stdout, stderr = await proc.communicate()
     if proc.returncode != 0:
@@ -49,8 +60,8 @@ async def _is_server_reachable(ip, puerto=25565):
 
 async def _get_public_ip():
     try:
-        response = requests.get('https://api.ipify.org?format=json').json()
-        return response['ip']
+        response = requests.get("https://api.ipify.org?format=json").json()
+        return response["ip"]
     except Exception:
         return None
 
@@ -66,7 +77,9 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
     if not ip_address_server:
         ip_address_server = await _get_public_ip()
         if not ip_address_server:
-            raise ValueError("No se ha podido determinar la IP pública del servidor. Proporciónala en payload.ip_address_server.")
+            raise ValueError(
+                "No se ha podido determinar la IP pública del servidor. Proporciónala en payload.ip_address_server."
+            )
     port_server = environment.get("port_server")
     if not port_server:
         port_server = 25565  # Puerto por defecto de Minecraft

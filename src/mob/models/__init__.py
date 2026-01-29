@@ -1,8 +1,10 @@
-from .actions import ActionConfig
-from .actions import OrderRequest
-from .actions import OrderResponse
-from .actions import ConfigRepository
-from .actions import FunctionRegistry
+from .actions import (
+    ActionConfig,
+    ConfigRepository,
+    FunctionRegistry,
+    OrderRequest,
+    OrderResponse,
+)
 
 __all__ = [
     "ActionConfig",

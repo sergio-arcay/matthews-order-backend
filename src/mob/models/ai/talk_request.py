@@ -16,6 +16,7 @@ class TalkRequest(BaseModel):
     """
     Standardized request format for AI conversational models.
     """
+
     conversation: list[MessageAI] = Field(
         ...,
         description="List of messages in the conversation.",

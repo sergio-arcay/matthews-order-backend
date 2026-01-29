@@ -1,8 +1,8 @@
-
-from openai import OpenAI as Gemini
-from google.genai import types
 from typing import Iterable
+
 from google import genai
+from google.genai import types
+from openai import OpenAI as Gemini
 
 from mob.app_utils import get_settings
 from mob.logger.logger import get_logger
@@ -23,7 +23,7 @@ def _build_client(api_key: str | None) -> Gemini:
     if api_key:
         return Gemini(
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-            api_key=api_key
+            api_key=api_key,
         )
     return Gemini()
 
@@ -39,7 +39,6 @@ def _flatten_message_content(content: object) -> str:
                 parts.append(text)
         return "".join(parts)
     return ""
-
 
 
 def select_action(request: ActionSelectionRequest, *, client: genai.Client | None = None) -> ActionSelectionResult:
@@ -64,8 +63,7 @@ def select_action(request: ActionSelectionRequest, *, client: genai.Client | Non
 
 
 def talk(request: TalkRequest, *, client: Gemini | None = None) -> TalkResult:
-    """ Have a conversation with a Gemini model given a TalkRequest.
-    """
+    """Have a conversation with a Gemini model given a TalkRequest."""
     settings = get_settings()
     api_key = settings.gemini_api_key
     client = client or _build_client(api_key=api_key)

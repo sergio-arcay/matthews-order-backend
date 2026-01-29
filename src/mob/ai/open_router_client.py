@@ -1,5 +1,6 @@
-from openai import OpenAI as OpenRouter
 from typing import Iterable
+
+from openai import OpenAI as OpenRouter
 
 from mob.app_utils import get_settings
 from mob.logger.logger import get_logger
@@ -18,10 +19,7 @@ DEFAULT_OPEN_ROUTER_MODEL = "nvidia/nemotron-3-nano-30b-a3b:free"
 def _build_client(api_key: str | None) -> OpenRouter:
     # Let the SDK read from the environment when an explicit key is not provided.
     if api_key:
-        return OpenRouter(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=api_key
-        )
+        return OpenRouter(base_url="https://openrouter.ai/api/v1", api_key=api_key)
     return OpenRouter()
 
 
@@ -67,8 +65,7 @@ def select_action(request: ActionSelectionRequest, *, client: OpenRouter | None 
 
 
 def talk(request: TalkRequest, *, client: OpenRouter | None = None) -> TalkResult:
-    """ Have a conversation with an OpenRouter model given a TalkRequest.
-    """
+    """Have a conversation with an OpenRouter model given a TalkRequest."""
     settings = get_settings()
     api_key = settings.open_router_api_key
     client = client or _build_client(api_key=api_key)

@@ -1,14 +1,13 @@
-from functools import lru_cache, partial
-from typing import Any, Callable
-from pathlib import Path
-import inspect
 import asyncio
+import inspect
 import json
 import os
+from functools import lru_cache, partial
+from pathlib import Path
+from typing import Any, Callable
 
-from mob.models import FunctionRegistry, ConfigRepository
+from mob.models import ConfigRepository, FunctionRegistry
 from mob.settings import Settings
-
 
 _config_repo: ConfigRepository | None = None
 
@@ -27,27 +26,23 @@ def get_config_repo() -> ConfigRepository:
 
 
 def get_total_config_file() -> str:
-    """
-
-    """
+    """ """
     config_repo = get_config_repo()
     if not config_repo.source_path or not config_repo.source_path.exists():
         raise FileNotFoundError("Configuration file not found.")
     # Read the json file
     with open(config_repo.source_path, "r", encoding="utf-8") as f:
         json_data = json.load(f)
+
     # Remove 'sensitive' fields: those starting with '__'
     def remove_sensitive_fields(obj: Any) -> Any:
         if isinstance(obj, dict):
-            return {
-                key: remove_sensitive_fields(value)
-                for key, value in obj.items()
-                if not key.startswith("_")
-            }
+            return {key: remove_sensitive_fields(value) for key, value in obj.items() if not key.startswith("_")}
         elif isinstance(obj, list):
             return [remove_sensitive_fields(item) for item in obj]
         else:
             return obj
+
     cleaned_data = remove_sensitive_fields(json_data)
     return json.dumps(cleaned_data, indent=2)
 
@@ -58,6 +53,7 @@ def _get_settings() -> Settings:
     is_docker_container = os.getenv("IS_DOCKER_CONTAINER", "false").lower() == "true"
     if not is_docker_container:
         from dotenv import load_dotenv
+
         load_dotenv()
     # Build settings from the rest of environment variables
     api_config_path = Path(os.getenv("API_CONFIG_PATH", "")) or None
@@ -101,9 +97,7 @@ def _build_function_kwargs(func: Callable[..., Any], payload: dict[str, Any]) ->
     return kwargs
 
 
-async def execute_callable(
-    func: Callable[..., Any], *, environment: dict[str, Any], payload: dict[str, Any]
-) -> Any:
+async def execute_callable(func: Callable[..., Any], *, environment: dict[str, Any], payload: dict[str, Any]) -> Any:
     """Executes the resolved callable honoring sync + async implementations."""
     invocation_payload = {"environment": environment, "payload": payload}
     kwargs = _build_function_kwargs(func, invocation_payload)

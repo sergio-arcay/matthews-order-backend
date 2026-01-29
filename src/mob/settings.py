@@ -1,6 +1,7 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
 from pathlib import Path
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -21,10 +22,7 @@ class Settings(BaseSettings):
         gt=0,
         description="Fallback timeout (in seconds) when an action omits it.",
     )
-    log_level: str = Field(
-        default="INFO",
-        description="Python logging level."
-    )
+    log_level: str = Field(default="INFO", description="Python logging level.")
     discord_bot_token: str = Field(
         default="",
         description="Discord bot token used for connecting to the Discord API.",

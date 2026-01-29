@@ -1,4 +1,5 @@
 from typing import Iterable
+
 from openai import OpenAI
 
 from mob.app_utils import get_settings
@@ -64,8 +65,7 @@ def select_action(request: ActionSelectionRequest, *, client: OpenAI | None = No
 
 
 def talk(request: TalkRequest, *, client: OpenAI | None = None) -> TalkResult:
-    """ Have a conversation with an OpenAI model given a TalkRequest.
-    """
+    """Have a conversation with an OpenAI model given a TalkRequest."""
     settings = get_settings()
     api_key = settings.openai_api_key
     client = client or _build_client(api_key=api_key)

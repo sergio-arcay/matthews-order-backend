@@ -1,6 +1,6 @@
 from .action_selection_request import ActionSelectionRequest
 from .action_selection_result import ActionSelectionResult
-from .talk_request import TalkRequest, MessageAI
+from .talk_request import MessageAI, TalkRequest
 from .talk_result import TalkResult
 
 __all__ = [
