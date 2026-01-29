@@ -2,9 +2,8 @@ from pathlib import Path
 from typing import Any
 import importlib
 import asyncio
-import time
-
 import discord
+import time
 
 from mob.ai import select_action_with_open_router
 from mob.app_utils import (
@@ -13,33 +12,16 @@ from mob.app_utils import (
     get_settings,
     get_total_config_file,
 )
+from mob.utils.time import get_current_date, get_current_time
 from mob.functions import FUNCTION_OUTPUT_MESSAGE_MODES
-from mob.logger.logger import get_logger
 from mob.models import FunctionRegistry, OrderResponse
 from mob.models.ai import ActionSelectionRequest
+from mob.prompts import AI_SYSTEM_PROMPT_SELECT_ACTION
+from mob.logger.logger import get_logger
 
 logger = get_logger("endpoints.discord.order_event")
 
 MESSAGE_METADATA_TAG_IN_CONVERSATION = "$$$"
-
-AI_PROMPT_SELECT_ACTION = """
-Tu eres Matthew. Ahora vas a trabajar como asistente en un grupo de chat. Tienes que asignar una acción a los mensajes
-que te vayan diciendo los usuarios. Solo puedes escoger y usar las acciones definidas en esta configuración:
-
-{actions_config_json}
-
-Muy importante: responde SIEMPRE con un JSON válido del tipo:
-
-{{"action":"<key_de_accion>",
- "payload":{{...}},
- "confidence":0.X,
- "message":"Respuesta corta al usuario previa a mostrar el resultado existoso. Solo hay una excepción: si la acción es
- una simple conversación, como en el caso de la acción "talk", deja este campo vacio."
-}}
-
-Obviamente la acción debe ser la que mejor encaje con la petición y debes recoger y rellenar todos los campos para el
-payload. Y recalco, no añadas nada fuera del JSON o rompes el sistema...
-"""
 
 
 def _prepare_discord_files(files: list[str]) -> tuple[list[discord.File], list[Any]]:
@@ -88,7 +70,11 @@ class OrderDiscordClient(discord.Client):
             return None
         message_content = message.content.lstrip("!").strip()  # Remove leading '!' and whitespaces
         conversation = []
-        system_prompt = AI_PROMPT_SELECT_ACTION.format(actions_config_json=get_total_config_file())
+        system_prompt = AI_SYSTEM_PROMPT_SELECT_ACTION.format(
+            current_date=get_current_date(),
+            current_time=get_current_time(),
+            actions_config_json=get_total_config_file()
+        )
 
         try:
             action, payload, extras = await OrderDiscordClient.select_action_ai(

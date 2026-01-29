@@ -8,23 +8,13 @@ from mob.functions import FUNCTION_OUTPUT_MESSAGE_MODES
 from mob.logger.logger import get_logger
 from mob.models.ai.talk_request import TalkRequest
 from mob.models.ai.talk_result import TalkResult
+from mob.prompts import AI_SYSTEM_PROMPT_FUNCTION_TALK
+from mob.utils.time import get_current_date, get_current_time
 
 DEFAULT_FUNCTION_OUTPUT_MESSAGE_MODE = FUNCTION_OUTPUT_MESSAGE_MODES.ASSISTANT
 
 
 logger = get_logger("functions.assistant.talk")
-
-
-AI_SYSTEM_PROMPT_SECONDARY = """
-Ahora vas a currar como asistente personal de un grupo de usuarios. Básicamente tienes que
-responder a sus mensajes de forma natural. Perteneces a un sistema que permite realizar las siguientes acciones sobre
-el servidor de estos usuarios:
-
-{actions_config_json}
-
-En tu caso, tu te encargas de las acciones relacionadas con la conversación y el soporte a los usuarios (por ejemplo la
-acción "talk").
-"""
 
 
 async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -41,12 +31,14 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
         conversation.append({"role": "user", "content": payload.get("message", "")})
     if environment.get("system_prompt"):  # PRIMARY SYSTEM PROMPT
         conversation.insert(0, {"role": "system", "content": environment["system_prompt"]})
-    if AI_SYSTEM_PROMPT_SECONDARY:
+    if AI_SYSTEM_PROMPT_FUNCTION_TALK:
         conversation.insert(
             1,
             {
                 "role": "system",
-                "content": AI_SYSTEM_PROMPT_SECONDARY.format(
+                "content": AI_SYSTEM_PROMPT_FUNCTION_TALK.format(
+                    current_date=get_current_date(),
+                    current_time=get_current_time(),
                     actions_config_json=get_total_config_file(),
                 ),
             },
