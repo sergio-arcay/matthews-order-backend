@@ -20,12 +20,12 @@ class ActionConfig(BaseModel):
     """Describes how to execute an action defined inside api_config.json."""
 
     _passkey: str | None = None
-    _timeout: float | None = None
+    timeout: float | None = None
     function: str
     environment: Dict[str, Any] = Field(default_factory=dict)
 
     def resolved_timeout(self, fallback: float) -> float:
-        return self._timeout or fallback
+        return self.timeout or fallback
 
 
 class OrderRequest(BaseModel):
@@ -115,7 +115,7 @@ class FunctionRegistry:
     @staticmethod
     def _import_target(target: str) -> Callable[..., Any]:
         module_path, attr_name = _split_function_target(target)
-        dotted_path = f"{FUNCTIONS_PACKAGE}.{module_path}"
+        dotted_path = f"mob.{FUNCTIONS_PACKAGE}.{module_path}"
         try:
             module = importlib.import_module(dotted_path)
         except ImportError as exc:

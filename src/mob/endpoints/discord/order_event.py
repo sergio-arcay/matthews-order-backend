@@ -1,5 +1,7 @@
-import asyncio
+from pathlib import Path
+from typing import Any
 import importlib
+import asyncio
 import time
 
 import discord
@@ -38,6 +40,24 @@ Muy importante: responde SIEMPRE con un JSON válido del tipo:
 Obviamente la acción debe ser la que mejor encaje con la petición y debes recoger y rellenar todos los campos para el
 payload. Y recalco, no añadas nada fuera del JSON o rompes el sistema...
 """
+
+
+def _prepare_discord_files(files: list[str]) -> tuple[list[discord.File], list[Any]]:
+    attachments: list[discord.File] = []
+    handles: list[Any] = []
+
+    for file_path in files:
+        path = Path(file_path)
+        try:
+            handle = path.open("rb")
+        except OSError:
+            logger.warning("Could not open result file at %s", path)
+            continue
+
+        handles.append(handle)
+        attachments.append(discord.File(handle, filename=path.name))
+
+    return attachments, handles
 
 
 class OrderDiscordClient(discord.Client):
@@ -163,14 +183,38 @@ class OrderDiscordClient(discord.Client):
 
         duration_ms = (time.perf_counter() - started) * 1000
         logger.info("Action '%s' executed in %.2f ms", action, duration_ms)
+
         result_message = result.get("message")
+        files_value = result.get("files")
+        raw_files: list[str] = []
+        if isinstance(files_value, (list, tuple)):
+            raw_files = list(files_value)
 
         # Elimina el MESSAGE_METADATA_TAG_IN_CONVERSATION si lo tiene
         if result_message and MESSAGE_METADATA_TAG_IN_CONVERSATION in result_message:
             parts = result_message.split(MESSAGE_METADATA_TAG_IN_CONVERSATION)
             result_message = parts[-1].strip()
 
-        await message.channel.send(result_message)
+        attachments: list[discord.File] = []
+        file_handles: list[Any] = []
+        if raw_files:
+            attachments, file_handles = _prepare_discord_files(raw_files)
+
+        send_kwargs = {}
+        if result_message is not None:
+            send_kwargs["content"] = result_message
+        if attachments:
+            send_kwargs["files"] = attachments
+
+        if send_kwargs:
+            try:
+                await message.channel.send(**send_kwargs)
+            finally:
+                for handle in file_handles:
+                    try:
+                        handle.close()
+                    except Exception:
+                        logger.warning("Could not close Discord attachment handle for %s", handle)
         return None
 
     @staticmethod

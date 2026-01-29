@@ -1,4 +1,8 @@
+from typing import Any, Iterable
+from pathlib import Path
+import mimetypes
 import asyncio
+import base64
 import time
 
 from fastapi import APIRouter, HTTPException, status
@@ -10,6 +14,31 @@ from mob.models import FunctionRegistry, OrderRequest, OrderResponse
 logger = get_logger("endpoints.rest.order_endpoint")
 
 router = APIRouter()
+
+
+def _serialize_result_files(files: Iterable[Any]) -> list[dict[str, str]]:
+    """Convert result file paths into serializable payloads."""
+    serialized_files: list[dict[str, str]] = []
+    if isinstance(files, (str, bytes)) or not isinstance(files, Iterable):
+        return serialized_files
+
+    for file_path in files:
+        path = Path(file_path)
+        try:
+            content = path.read_bytes()
+        except OSError:
+            logger.warning("Could not read result file at %s", path)
+            continue
+
+        content_type, _ = mimetypes.guess_type(path.name)
+        serialized_files.append(
+            {
+                "filename": path.name,
+                "content_type": content_type or "application/octet-stream",
+                "content": base64.b64encode(content).decode("utf-8"),
+            }
+        )
+    return serialized_files
 
 
 @router.post(
@@ -83,6 +112,12 @@ async def execute_order(request: OrderRequest) -> OrderResponse:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Action failed to execute.",
         ) from exc
+
+    if isinstance(result, dict) and result.get("files"):
+        result = {
+            **result,
+            "files": _serialize_result_files(result.get("files", [])),
+        }
 
     duration_ms = (time.perf_counter() - started) * 1000
     return OrderResponse(

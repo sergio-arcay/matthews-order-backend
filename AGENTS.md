@@ -33,10 +33,10 @@ Pruebas y mantenimiento
 -----------------------
 - Tests: `poetry run pytest` (ver `tests/test_app.py`).
 - Añadir acción: crear módulo con `run(*, environment, payload)` y `DEFAULT_FUNCTION_OUTPUT_MESSAGE_MODE`; registrar en `api_config.json`.
-- Si cambias `api_config.json`, revisa que los campos `_passkey` y `_timeout` estén bien escritos (nota: en ejemplos `_timeout`, en código se lee `_timeout` pero el modelo expone `resolved_timeout`).
+- Si cambias `api_config.json`, revisa que los campos `_passkey` y `timeout` estén bien escritos (nota: en ejemplos `timeout`, en código se lee `timeout` pero el modelo expone `resolved_timeout`).
 
 Precauciones
 ------------
 - No eliminar ni exponer `api_config.json` ni `.env`; contienen passkeys y tokens.
 - Funciones de Docker fallan si el contenedor no existe o no está corriendo; monta el socket y usa nombres correctos.
-- Mantén tiempo de espera suficiente para acciones largas (scraping, conversación) ajustando `_timeout` por acción o `DEFAULT_TIMEOUT`.
+- Mantén tiempo de espera suficiente para acciones largas (scraping, conversación) ajustando `timeout` por acción o `DEFAULT_TIMEOUT`.

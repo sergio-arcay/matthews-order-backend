@@ -26,7 +26,7 @@ Define un `.env` siguiendo `example.env`. Las claves disponibles están en `src/
 - `DISCORD_BOT_TOKEN`: token del bot de Discord.
 - `GEMINI_API_KEY`, `OPENAI_API_KEY`, `OPEN_ROUTER_API_KEY`, `G4F_API_BASE_URL`, `G4F_API_KEY`: credenciales de IA.
 - `API_CONFIG_PATH`: ruta al `api_config.json` (por defecto, la raíz del proyecto). Monta el archivo dentro del contenedor si usas Docker.
-- `DEFAULT_TIMEOUT`: timeout por defecto en segundos si una acción no define `_timeout`.
+- `DEFAULT_TIMEOUT`: timeout por defecto en segundos si una acción no define `timeout`.
 - `LOG_LEVEL`: nivel de logging Python (ej. `DEBUG`, `INFO`).
 
 Formato de `api_config.json`
@@ -36,7 +36,7 @@ Ejemplo reducido (ver `example.api_config.json` y el real `api_config.json`):
 {
   "test-slow-echo": {
     "_passkey": "testkey",          // Opcional: requerido en la petición
-    "_timeout": 10,                 // Opcional: override del timeout global
+    "timeout": 10,                 // Opcional: override del timeout global
     "function": "testing.slow_echo",// Ruta dentro de functions
     "environment": {},              // Parámetros fijos para la función
     "meta": {                       // Libre para documentar e información extra para el llm
@@ -153,5 +153,5 @@ Notas y buenas prácticas
 ------------------------
 - Protege `api_config.json` y `.env` (contienen passkeys y tokens). No los incluyas en el control de versiones.
 - Las funciones que usan Docker requieren montar el socket y que el contenedor objetivo exista; los comandos fallan con `RuntimeError` si no está en ejecución.
-- Ajusta `_timeout` por acción para operaciones largas (ej. scraping o conversación).
+- Ajusta `timeout` por acción para operaciones largas (ej. scraping o conversación).
 - Para añadir acciones nuevas: crea un módulo en `src/functions/...` con `run(*, environment, payload)` y regístralo en `api_config.json` con su entorno y passkey si aplica.
