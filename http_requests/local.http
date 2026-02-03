@@ -60,3 +60,16 @@ Content-Type: application/json
     "message": "Hola! Que tal?"
   }
 }
+
+### check-vigo-padel-twelve
+
+POST {{uri-local}}/order
+Content-Type: application/json
+
+{
+  "action": "check-vigo-padel-twelve",
+  "passkey": "{{passkey-talk}}",
+  "payload": {
+    "dates_to_check": ["2026-01-31"]
+  }
+}

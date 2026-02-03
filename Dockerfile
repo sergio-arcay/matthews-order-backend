@@ -28,6 +28,7 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 COPY src/ ./src/
 COPY README.md ./
+COPY autoweb autoweb
 
 # Instala las dependencias
 RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi

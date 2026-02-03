@@ -7,17 +7,16 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "fastapi>=0.111.0",
-    "uvicorn>=0.30.0",
-    "pydantic-settings>=2.4.0",
-    "discord-py (>=2.6.4,<3.0.0)",
-    "protobuf (>=6.33.2,<7.0.0)",
-    "google-genai (>=1.54.0,<2.0.0)",
-    "openai (>=2.15.0,<3.0.0)",
-    "g4f (>=6.7.1,<7.0.0)",
-    "autoweb @ git+ssh://git@github.com/sergio-arcay/autoweb.git",
-]
+[tool.poetry.dependencies]
+fastapi = ">=0.111.0"
+uvicorn = ">=0.30.0"
+pydantic-settings = ">=2.4.0"
+discord-py = ">=2.6.4,<3.0.0"
+protobuf = ">=6.33.2,<7.0.0"
+google-genai = ">=1.54.0,<2.0.0"
+openai = ">=2.15.0,<3.0.0"
+g4f = ">=6.7.1,<7.0.0"
+autoweb = { path = "./autoweb", develop = true }
 
 [tool.poetry]
 packages = [{include = "mob", from = "src"}]

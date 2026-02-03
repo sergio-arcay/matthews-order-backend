@@ -332,7 +332,7 @@ optional = false
 python-versions = ">=3.13"
 groups = ["main"]
 files = []
-develop = false
+develop = true
 
 [package.dependencies]
 anthropic = ">=0.76.0,<0.77.0"
@@ -348,10 +348,8 @@ selenium = ">=4.39.0,<5.0.0"
 trafilatura = ">=2.0.0,<3.0.0"
 
 [package.source]
-type = "git"
-url = "ssh://git@github.com/sergio-arcay/autoweb.git"
-reference = "HEAD"
-resolved_reference = "80807e829fd2c76f502652647f1f6eaf1ced721a"
+type = "directory"
+url = "autoweb"
 
 [[package]]
 name = "babel"
@@ -3918,4 +3916,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "1497303bdf5f47c73a8be359b9757827f135b000b63ddde6ce84c880e68f16b5"
+content-hash = "3a5f74e6dae02f5222ed4c0724fef53eda109fef5a9ad3a1dbd9150315884264"
