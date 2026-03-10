@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 # region Constants
 
 DEFAULT_FUNCTION_NAME = "run"
+DEFAULT_CHECKER_NAME = "check"
 FUNCTIONS_PACKAGE = "functions"
 
 # endregion
@@ -23,6 +24,7 @@ class ActionConfig(BaseModel):
     timeout: float | None = None
     function: str
     environment: Dict[str, Any] = Field(default_factory=dict)
+    checker_interval: float | None = None
 
     def resolved_timeout(self, fallback: float) -> float:
         return self.timeout or fallback
@@ -101,11 +103,12 @@ class FunctionRegistry:
     _lock = threading.Lock()
 
     @classmethod
-    def resolve(cls, target: str) -> Callable[..., Any]:
+    def resolve(cls, target: str, checker: bool = False) -> Callable[..., Any]:
+        input_key = f"{target}|checker={checker}"
         with cls._lock:
-            if target not in cls._cache:
-                cls._cache[target] = cls._import_target(target)
-            return cls._cache[target]
+            if input_key not in cls._cache:
+                cls._cache[input_key] = cls._import_target(target, checker)
+            return cls._cache[input_key]
 
     @classmethod
     def clear(cls) -> None:
@@ -113,8 +116,8 @@ class FunctionRegistry:
             cls._cache.clear()
 
     @staticmethod
-    def _import_target(target: str) -> Callable[..., Any]:
-        module_path, attr_name = _split_function_target(target)
+    def _import_target(target: str, checker: bool) -> Callable[..., Any]:
+        module_path, attr_name = _split_function_target(target, checker)
         dotted_path = f"mob.{FUNCTIONS_PACKAGE}.{module_path}"
         try:
             module = importlib.import_module(dotted_path)
@@ -130,15 +133,18 @@ class FunctionRegistry:
 # region Utils
 
 
-def _split_function_target(target: str) -> tuple[str, str]:
+def _split_function_target(target: str, checker: bool) -> tuple[str, str]:
     """
     Splits the configured function string into module + attribute parts. When an
-    attribute is not provided, defaults to 'run'.
+    attribute is not provided, defaults to:
+
+    - "run" if checker=False
+    - "check" if checker=True
     """
     if ":" in target:
         module_path, attr_name = target.rsplit(":", 1)
     else:
-        module_path, attr_name = target, DEFAULT_FUNCTION_NAME
+        module_path, attr_name = target, (DEFAULT_CHECKER_NAME if checker else DEFAULT_FUNCTION_NAME)
 
     return module_path, attr_name
 

@@ -1,21 +1,22 @@
 from __future__ import annotations
 
-import logging.config
-import sys
 from contextlib import asynccontextmanager
+import logging.config
+import argparse
 
-import discord
 from fastapi import FastAPI
+import discord
 
-from mob.app_utils import get_settings
-from mob.endpoints.discord.order_event import OrderDiscordClient
-from mob.endpoints.rest.base_endpoint import router as base_router
 from mob.endpoints.rest.order_endpoint import router as order_router
+from mob.endpoints.rest.base_endpoint import router as base_router
+from mob.endpoints.discord.order_event import OrderDiscordClient
+from mob.logger.logging_config import build_logging_config
 from mob.logger.logger import get_logger
-from mob.logger.logging_config import LOGGING_CONFIG
 from mob.models import ConfigRepository
+from mob.app_utils import get_settings
+from mob.endpoints.scheduler.scheduler import GeneralScheduler
 
-logging.config.dictConfig(LOGGING_CONFIG)
+logging.config.dictConfig(build_logging_config(get_settings().log_level))
 logger = get_logger("app")
 
 _config_repo: ConfigRepository | None = None
@@ -52,11 +53,21 @@ intents.message_content = True
 app_discord = OrderDiscordClient(intents=intents)
 
 
-def main_api():
+def main_scheduler():
+    """
+    Instancia y ejecuta el GeneralScheduler.
+    """
+    scheduler = GeneralScheduler()
+    scheduler.run()
+
+
+def main_api(with_scheduler: bool = False):
     import uvicorn
 
     # Run FastAPI app with Uvicorn
     logger.info("Starting MOB as REST API")
+    if with_scheduler:
+        main_scheduler()
     uvicorn.run(
         "src.mob.app:app",
         host="0.0.0.0",
@@ -65,26 +76,29 @@ def main_api():
     )
 
 
-def main_discord():
+def main_discord(with_scheduler: bool = False):
     # Include events for Discord client
     logger.info("Starting MOB as Discord Bot")
+    if with_scheduler:
+        main_scheduler()
     app_discord.run(get_settings().discord_bot_token)
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="MOB App runner")
+    subparsers = parser.add_subparsers(dest="mode", required=True)
 
-    param1 = sys.argv[1] if len(sys.argv) > 1 else "api"
+    api_parser = subparsers.add_parser("api", help="Ejecuta en modo API REST")
+    api_parser.add_argument("--scheduler", action="store_true", help="Activa funciones periódicas (scheduler)")
 
-    match param1:
+    discord_parser = subparsers.add_parser("discord", help="Ejecuta en modo Discord Bot")
+    discord_parser.add_argument("--scheduler", action="store_true", help="Activa funciones periódicas (scheduler)")
 
-        case "api":
+    args = parser.parse_args()
 
-            main_api()
-
-        case "discord":
-
-            main_discord()
-
-        case _:
-
-            logger.error("Invalid parameter. Use 'api' or 'discord'.")
+    if args.mode == "api":
+        main_api(with_scheduler=args.scheduler)
+    elif args.mode == "discord":
+        main_discord(with_scheduler=args.scheduler)
+    else:
+        logger.error("Modo no reconocido. Use 'api' o 'discord'.")
