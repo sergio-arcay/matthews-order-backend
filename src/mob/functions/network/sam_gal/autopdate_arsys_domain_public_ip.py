@@ -7,7 +7,6 @@ import httpx
 
 # Configuración de la API de Arsys según el manual
 ARSYS_API_URL = "https://api.servidoresdns.net:54321/hosting/api/soap/index.php"
-DOMAINS_TO_CHECK = ["sam.gal"]  # Listado solicitado por el usuario
 
 
 async def get_public_ip() -> str:
@@ -102,45 +101,46 @@ async def check(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> bool
     """
     Verifica si la IP pública coincide con la configurada en Arsys.
     """
+    domain = environment.get("domain")
+    records_to_update = environment.get("records", [])
     try:
         public_ip = await get_public_ip()
 
-        for domain_name in DOMAINS_TO_CHECK:
-
-            response_records = await call_arsys_soap_info_dns_zone(domain_name, environment)
-            if response_records is None:
+        response_records = await call_arsys_soap_info_dns_zone(domain, environment)
+        if response_records is None:
+            return False
+        for record_name in records_to_update:
+            if any(record for record in response_records if record["name"] == record_name and record["type"] == "A" and record["value"] != public_ip):
                 return False
-
-            response_current_record = next((record for record in response_records if record["name"] == domain_name and record["type"] == "A"), None)
-
-            if public_ip != response_current_record["value"]:
-                return False
-
         return True
+
     except Exception as e:
-        return False
+        raise Exception(f"Error al verificar la IP: {str(e)}")
 
 
 async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Actualiza la IP en Arsys cuando el check devuelve False
     """
+    domain = environment.get("domain")
+    records_to_update = environment.get("records", [])
     try:
         public_ip = await get_public_ip()
 
-        for domain_name in DOMAINS_TO_CHECK:
-
-            arsys_response = await call_arsys_soap_info_dns_zone(domain_name, environment)
-            if arsys_response is None:
-                continue
-            current_record = next((record for record in arsys_response if record["name"] == domain_name and record["type"] == "A"), None)
+        response_records = await call_arsys_soap_info_dns_zone(domain, environment)
+        if not response_records:
+            return {
+                "success": False,
+                "message": "No se pudieron obtener las entradas DNS del dominio."
+            }
+        for record_name in records_to_update:
+            current_record = next((record for record in response_records if record["name"] == record_name and record["type"] == "A"), None)
             if not current_record:
-                continue
+                continue  # Si no se encuentra la entrada, se omite
             current_val = current_record["value"]
-
             input_xml = f"""
-                <domain>{domain_name}</domain>
-                <dns>{domain_name}</dns>
+                <domain>{domain}</domain>
+                <dns>{record_name}</dns>
                 <currenttype>A</currenttype>
                 <currentvalue>{current_val}</currentvalue>
                 <newvalue>{public_ip}</newvalue>
