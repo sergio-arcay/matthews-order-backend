@@ -64,4 +64,5 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
 
     return {
         "message": f'El resultado de la orden fue: "{result}"',
+        "data": { "raw_response": result },
     }

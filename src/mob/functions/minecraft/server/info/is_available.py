@@ -95,4 +95,5 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
 
     return {
         "message": message,
+        "data": { "container_running": is_container_running, "server_reachable": is_server_reachable}
     }

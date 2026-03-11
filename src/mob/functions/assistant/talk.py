@@ -55,4 +55,5 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
         talk_result = talk_to_open_router(talk_request)
     return {
         "message": talk_result.message,
+        "data": { "message": talk_result.message },
     }

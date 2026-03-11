@@ -53,4 +53,5 @@ async def run(*, environment: Dict[str, Any], payload: Dict[str, Any]) -> Dict[s
 
     return {
         "message": f"Archivo '{temp_path}' creado exitosamente en el contenedor '{container}'.",
+        "data": { "container": container, "temp_path": temp_path },
     }
