@@ -68,7 +68,7 @@ class AWEnginePadelCheckerVigoTwelve(AWEngineBase):
         time.sleep(5)
         # Calcula el índice del día a comprobar
         days_index = [(day_to_check, self.__calc_day_index_from_today(day_to_check)) for day_to_check in self.dates_to_check]
-        days_index = [di for di in days_index if 0 < di[1] <= 6]  # Filtra índices válidos
+        days_index = [di for di in days_index if 0 < di[1] <= 7]  # Filtra índices válidos
         if not days_index:
             return AWEngineResponse.EMPTY, {}
         # Extrae las pistas disponibles
