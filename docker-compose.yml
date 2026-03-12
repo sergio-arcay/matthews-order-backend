@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    command: poetry run api
+    command: poetry run api --scheduler
 
   mob_discord:
     image: mob  # docker build -t mob .
