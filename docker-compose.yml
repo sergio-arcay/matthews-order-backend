@@ -4,6 +4,7 @@ services:
     container_name: mob_api
     environment:
       - IS_DOCKER_CONTAINER=true
+      - CHROME_BINARY=/usr/bin/chromium
       - API_CONFIG_PATH=api_config.json
       - DEFAULT_TIMEOUT=30
       - LOG_LEVEL=INFO
@@ -22,6 +23,7 @@ services:
     container_name: mob_discord
     environment:
       - IS_DOCKER_CONTAINER=true
+      - CHROME_BINARY=/usr/bin/chromium
       - API_CONFIG_PATH=api_config.json
       - DEFAULT_TIMEOUT=10
       - LOG_LEVEL=INFO

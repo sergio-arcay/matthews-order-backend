@@ -2,12 +2,14 @@ FROM python:3.13.9-slim
 
 # Instala dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    curl \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    lsb-release && \
-    rm -rf /var/lib/apt/lists/*
+      curl \
+      apt-transport-https \
+      ca-certificates \
+      gnupg \
+      lsb-release \
+      chromium \
+      chromium-driver \
+      && rm -rf /var/lib/apt/lists/*
 
 # Instala Docker CLI
 RUN mkdir -p /etc/apt/keyrings && \
